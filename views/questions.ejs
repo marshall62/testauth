@@ -3,17 +3,17 @@
     <script type="application/javascript">
         function addQuestion() {
             var form = document.getElementById("myform");
-            form.action = "/questions/";
+            form.action = "/testauth/questions/";
             form.submit();
         }
     </script>
 </head>
 <body>
-<a href="/tests">View All Tests</a>
+<a href="/testauth/tests">View All Tests</a>
 <br><br>
 Here are all the Pre/Post questions
 
-<form id="myform" action="/questions", method="post">
+<form id="myform" action="/testauth/questions", method="post">
 
     <table>
         <tr><td>Del</td><td></td><td><input type="submit" name="newQuestion" value="+"></td></tr>
@@ -21,7 +21,7 @@ Here are all the Pre/Post questions
         <tr>
             <td> <%- checkbox_tag('removeQuestion',{"value": question.id}) %></td>
             <td><%= question.id %></td>
-            <td> <a href="/questions/<%= question.id%>"> <%= question.descr %> </a>  </td>
+            <td> <a href="/testauth/questions/<%= question.id%>"> <%= question.descr %> </a>  </td>
         </tr>
         <% }); %>
     </table>

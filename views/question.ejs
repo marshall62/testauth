@@ -12,10 +12,10 @@
 </head>
 
 <body>
-<a href="/tests">View All Tests</a> &nbsp; &nbsp; <a href="/questions">View All Questions</a>
+<a href="/testauth/tests">View All Tests</a> &nbsp; &nbsp; <a href="/testauth/questions">View All Questions</a>
 <br><br>
 <!-- See for doc on view helpers https://github.com/tanema/express-helpers/wiki -->
-<form method="post" enctype="multipart/form-data" action="/questions/<%= qid %>" onsubmit="return validateQuestion()">
+<form method="post" enctype="multipart/form-data" action="/testauth/questions/<%= qid %>" onsubmit="return validateQuestion()">
 
 Question ID:<%= qid %>
 <br>
@@ -41,7 +41,7 @@ Answer: <%- text_field_tag('answer', qobj.answer) %>
 
 Image file: <%- file_field_tag("image",{"value":5}) %> <br/>
 <% if (qobj.image) { %>
-   <img src="/questions/<%= qid %>/img">
+   <img src="/testauth/questions/<%= qid %>/img">
     <br>
     <%- checkbox_tag('removeImage', {"value": "remove"}) %> Remove the image from this question
     <br><br>
