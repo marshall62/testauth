@@ -11,7 +11,7 @@
         }
 
         function fetchTest (tid) {
-            document.location.href = "/testauth/tests/" + tid;
+            document.location.href = "/tests/" + tid;
         }
 
         function addQuestionRow () {
@@ -88,18 +88,18 @@
         }
 
         function popupQuestions () {
-            window.open("/testauth/questions","", "width=500,height=600,toolbar=yes,scrollbars=yes,resizable=yes");
+            window.open("/questions","", "width=500,height=600,toolbar=yes,scrollbars=yes,resizable=yes");
         }
 
     </script>
 </head>
 
 <body>
-<a href="/testauth/tests">View All Tests</a> &nbsp; &nbsp; <a href="/testauth/questions">View All Questions</a>
+<a href="/tests">View All Tests</a> &nbsp; &nbsp; <a href="/questions">View All Questions</a>
     <br><br>
 
 <!-- See for doc on view helpers https://github.com/tanema/express-helpers/wiki -->
-    <form method="post" action="/testauth/tests/<%= tid %>" onsubmit="return validateTest()">
+    <form method="post" action="/tests/<%= tid %>" onsubmit="return validateTest()">
 
     Test ID: <%= tid %>
     <br>
@@ -123,7 +123,7 @@
                         <input type="button" onclick="moveDown( <%= i %> )" value="v"></td>
                     <% } %>
                 <td> <%= q.id %> </td>
-                <td> <a href="/testauth/questions/<%= q.id%>"><%= q.descr %></a></td>
+                <td> <a href="/questions/<%= q.id%>"><%= q.descr %></a></td>
                 <td><input type="hidden" name="questionIds" value="<%= q.id %>"></td>
             </tr>
         <% } %>
