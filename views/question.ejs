@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--<title>Edit Question <%= qid %></title>-->
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <script type="application/javascript">
+        function validateQuestion () {
+            // TODO need to make sure multichoices don't have holes.
+            return true;
+        }
+    </script>
+</head>
+
+<body>
+<a href="/tests">View All Tests</a> &nbsp; &nbsp; <a href="/questions">View All Questions</a>
+<br><br>
+<!-- See for doc on view helpers https://github.com/tanema/express-helpers/wiki -->
+<form method="post" enctype="multipart/form-data" action="/questions/<%= qid %>" onsubmit="return validateQuestion()">
+
+Question ID:<%= qid %>
+<br>
+
+Image URL: <%- text_field_tag('imageurl',qobj.imageURL) %>
+<br>
+
+Name: <%- text_field_tag('name',qobj.name) %>
+<br>
+
+Type:<%- select_tag("type",
+[{"value": 'multiChoice',"text": "Multiple Choice"},
+{"value": 'shortAnswer',"text": "Short Answer"},
+{"value": "longAnswer","text": "Text Answer"}],
+{"value": qobj.type}) %>
+<br/>
+
+
+<% if (!qobj.isMultiChoice() ) { %>
+Answer: <%- text_field_tag('answer', qobj.answer) %>
+<% } %>
+<br/>
+
+Image file: <%- file_field_tag("image",{"value":5}) %> <br/>
+<% if (qobj.image) { %>
+   <img src="/questions/<%= qid %>/img">
+    <br>
+    <%- checkbox_tag('removeImage', {"value": "remove"}) %> Remove the image from this question
+    <br><br>
+<% } %>
+Description: <br/>
+<%- text_area_tag('descr',qobj.descr) %>
+<br/>
+
+
+Warn Student to answer time:
+    <!--<%- text_field_tag('warnTime', qobj.warnTime) %>-->
+    <%- select_tag("warnTime",[{"value":30,"text":"30 secs"},{"value":60,"text":"1 min"},
+    {"value":"120","text":"2 min"}, {"value":"180","text":"3 min"}, {"value":"300","text":"5 min"},
+    {"value":"unlimited","text":"No time limit"}],{"value": qobj.warnTime }) %>
+<br/> <br/>
+
+<% if (qobj.isMultiChoice()) { %>
+Multiple choices (select the one that is the correct answer):
+    <table>
+    <% if (qobj.answer == 'a') { %>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','a', {checked: true}) %> </td><td> Choice A: </td> <td> <%- text_field_tag('aAns',qobj.aAns) %> </td></tr>
+    <% } else { %>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','a') %> </td><td> Choice A: </td> <td> <%- text_field_tag('aAns',qobj.aAns) %>  </td></tr>
+        <br/>
+    <% } %>
+    <% if (qobj.bAns && qobj.answer == 'b') { %>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','b', {checked: true}) %> </td><td> Choice B: </td> <td> <%- text_field_tag('bAns',qobj.bAns) %> </td></tr>
+        <% } else  { %>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','b') %> </td><td> Choice B: </td> <td> <%- text_field_tag('bAns',qobj.bAns) %>  </td></tr>
+        <br/>
+        <% } %>
+    <% if (qobj.cAns && qobj.answer == 'c') { %>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','c', {checked: true}) %> </td><td> Choice C: </td> <td> <%- text_field_tag('cAns',qobj.cAns) %> </td></tr>
+        <% } else  { %>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','c') %> </td><td> Choice C: </td> <td> <%- text_field_tag('cAns',qobj.cAns) %>  </td></tr>
+        <br/>
+        <% } %>
+    <% if (qobj.dAns && qobj.answer == 'd') { %>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','d', {checked: true}) %> </td><td> Choice D: </td> <td> <%- text_field_tag('dAns',qobj.dAns) %> </td></tr>
+        <% } else  { %>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','d') %> </td><td> Choice D: </td> <td> <%- text_field_tag('dAns',qobj.dAns) %>  </td></tr>
+        <br/>
+        <% } %>
+
+    <% if (qobj.eAns && qobj.answer == 'e') { %>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','e', {checked: true}) %> </td><td> Choice E: </td> <td> <%- text_field_tag('eAns',qobj.eAns) %> </td></tr>
+        <% } else  { %>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','e') %> </td><td> Choice E: </td> <td> <%- text_field_tag('eAns',qobj.eAns) %>  </td></tr>
+        <br/>
+        <% } %>
+
+    <% if (!qobj.answer) { %>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','noneCorrect', {'checked': true}) %> </td><td> There is no correct answer </td></tr>
+    <% } else { %>
+        <tr><td><%- radio_tag('multiChoiceCorrectAnswer','noneCorrect') %> </td><td>There is no correct answer  </td></tr>
+    <% } %>
+        </table>
+
+<br/>
+<% } %>
+
+<!-- insert here -->
+<br/>
+<br/>
+<input type="submit" value="Save" name="action">
+<input type="reset" value="Reset" name="reset">
+
+
+
+<%- form_end_tag() %>
+
+</body>
+</html>

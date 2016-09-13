@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+
+    <title>Edit Test <%= tid %></title>
+    <script type="application/javascript">
+        function validateTest () {
+            return true;
+        }
+
+        function fetchTest (tid) {
+            document.location.href = "/tests/" + tid;
+        }
+
+        function addQuestionRow () {
+
+            var tab = document.getElementById("questionTable");
+            var nRows = tab.rows.length;
+            var r = tab.insertRow(-1);
+
+            var c = r.insertCell(0);
+            c.innerHTML = "";
+            var d = r.insertCell(1) ;
+//            d.innerHTML = "<input type='button' onclick='moveUp(" +nRows+ ")' value='^'>";
+            d = r.insertCell(2) ;
+//            tab.rows[nRows-1].cells[2].innerHTML = "<input type='button' onclick='moveDown(" +nRows+ ")' value='v'>";
+//            d.innerHTML = "<input type='button' onclick='moveDown(" +nRows+ ")' value='v'>";
+            var e = r.insertCell(3)  ;
+            e.innerHTML = "<input type='textfield' name='questionIds' size='3'>" ;
+            var f = r.insertCell(4) ;
+
+        }
+
+        function getRowVals (cells) {
+            // checkBox
+//            table.rows[rowIndex].cells[colIndex].getElementsByTagName('input')[0];
+            var td0 = cells[0];
+            var checkBox = td0.getElementsByTagName('input')[0];
+            var isChecked = checkBox.checked;
+            checkBox = cells[0].innerHTML;
+            var id = cells[3].innerHTML;
+            var link = cells[4].innerHTML;
+            var hiddenId = cells[5].innerHTML;
+            return [checkBox, id, link, hiddenId] ;
+            alert("The checkbox is " + isChecked +  " id is " + id + " link " + link);
+        }
+
+        function moveUp (n) {
+            var tab = document.getElementById("questionTable");
+            var rowOn = tab.rows[n];
+            var rowAbove = tab.rows[n-1];
+
+            var cellsOn = rowOn.getElementsByTagName("td");
+            var temp = getRowVals(cellsOn);
+            var cellsAbove = rowAbove.getElementsByTagName("td");
+            cellsOn[0].innerHTML = cellsAbove[0].innerHTML;
+            cellsOn[3].innerHTML = cellsAbove[3].innerHTML;
+            cellsOn[4].innerHTML = cellsAbove[4].innerHTML;
+            cellsOn[5].innerHTML = cellsAbove[5].innerHTML;
+            cellsAbove[0].innerHTML = temp[0];
+            cellsAbove[3].innerHTML = temp[1];
+            cellsAbove[4].innerHTML = temp[2];
+            cellsAbove[5].innerHTML = temp[3];
+
+//                alert("cells " + cells.length + " id " + cells[3].innerHTML);
+
+        }
+
+        function moveDown (n) {
+            var tab = document.getElementById("questionTable");
+            var rowOn = tab.rows[n+1];
+            var rowAbove = tab.rows[n];
+
+            var cellsOn = rowOn.getElementsByTagName("td");
+            var temp = getRowVals(cellsOn);
+            var cellsAbove = rowAbove.getElementsByTagName("td");
+            cellsOn[0].innerHTML = cellsAbove[0].innerHTML;
+            cellsOn[3].innerHTML = cellsAbove[3].innerHTML;
+            cellsOn[4].innerHTML = cellsAbove[4].innerHTML;
+            cellsOn[5].innerHTML = cellsAbove[5].innerHTML;
+            cellsAbove[0].innerHTML = temp[0];
+            cellsAbove[3].innerHTML = temp[1];
+            cellsAbove[4].innerHTML = temp[2];
+            cellsAbove[5].innerHTML = temp[3];
+
+        }
+
+        function popupQuestions () {
+            window.open("/questions","", "width=500,height=600,toolbar=yes,scrollbars=yes,resizable=yes");
+        }
+
+    </script>
+</head>
+
+<body>
+    <a href="/tests">Go to All Tests</a> &nbsp; &nbsp; <a href="/questions">Go to  All Questions</a>
+    <br><br>
+
+<!-- See for doc on view helpers https://github.com/tanema/express-helpers/wiki -->
+    <form method="post" action="/tests/<%= tid %>" onsubmit="return validateTest()">
+
+    Test ID: <%= tid %>
+    <br>
+    Name: <%- text_field_tag("name",{"value": test.name}) %>
+    <!--Questions size: <%= test.questions.length %>-->
+        <br><br>
+
+        <table id="questionTable">
+            <tr> <td>Del</td> <td>Up</td> <td>Dwn</td> <td>Quest ID</td> <td><input type="button" onclick="addQuestionRow()" value="Add Question"></td><td><input type="button" onclick="popupQuestions()" value="Popup All questions"></td></tr>
+        <% for (var i=1; i <= test.questions.length; i++) { %>
+        <% var q = test.questions[i-1]; %>
+            <tr id="row-<%= i %>" >
+                <td> <%- checkbox_tag('removeQuestion',{"value": q.id}) %></td>
+                <td>
+                    <% if (i != 1) { %>
+                        <input type="button" onclick="moveUp( <%= i %> )" value="^">
+                    <% } %>
+                </td>
+                <td>
+                    <% if (i != test.questions.length) { %>
+                        <input type="button" onclick="moveDown( <%= i %> )" value="v"></td>
+                    <% } %>
+                <td> <%= q.id %> </td>
+                <td> <a href="/questions/<%= q.id%>"><%= q.descr %></a></td>
+                <td><input type="hidden" name="questionIds" value="<%= q.id %>"></td>
+            </tr>
+        <% } %>
+        </table>
+        <br>
+        <%- submit_tag("Save") %>
+        <input type="button" value="Cancel" onclick="fetchTest(<%=test.id %>)" name="reset">
+
+    </form>
+</body>
+</html>
