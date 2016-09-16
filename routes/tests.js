@@ -43,6 +43,10 @@ router.post('/', function(req, res, next) {
     var removeTest = req.body.removeTest;
     var myresult = {test : undefined};
     removeTest = (typeof(removeTest) == 'string') ? [removeTest] : removeTest;
+    if (!removeTest) {
+        res.redirect("./tests");
+        return;
+    }
     async.series([
             function (callback) {
                 db.pool.getConnection(function (err, conn) {
@@ -51,9 +55,7 @@ router.post('/', function(req, res, next) {
                 });
             },
             function (callback) {
-                if (removeTest) {
-                    deleteTests(dbConn,removeTest,callback,next);
-                }
+                deleteTests(dbConn,removeTest,callback,next);
             }
         ],
         function (err, result) {
@@ -62,11 +64,13 @@ router.post('/', function(req, res, next) {
                 return next(err)
             }
             else {
-                res.redirect("/tests")
+                res.redirect("./tests")
             }
         });
 
 } );
+
+
 
 // process GET on URI /tests/<id> to return a test editing page
 router.get('/:tid', function(req, res, next) {
@@ -102,6 +106,7 @@ router.get('/:tid', function(req, res, next) {
         })  ;
 
 });
+
 
 // process POST on URI /tests/<id> to update a test.
 router.post('/:tid', function(req, res, next) {
@@ -163,6 +168,7 @@ router.post('/:tid', function(req, res, next) {
     }
 
 });
+
 
 
 // Puts all the questions into an array

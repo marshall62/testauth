@@ -61,9 +61,10 @@ router.get('/', function(req, res, next) {
 
 
 
-// process GET on URI /questions/<id> to return a question editing page
+// process GET on URI /questions/<id> to return a question editing page  or /questions/new for a new question editing page.
 router.get('/:qid', function(req, res, next) {
     var qid = req.params.qid;
+    var isNew = qid == 'new';  // 
     var dbConn;
     var myresult = {question : undefined};
     async.series([
@@ -74,7 +75,13 @@ router.get('/:qid', function(req, res, next) {
             });
         },
         function (callback) {
-            getQuestion(dbConn, qid, myresult,callback);
+            if (isNew) {
+                myresult.question = new Question();
+                myresult.question.setType(1); // a better default for editing a new question
+                callback(null, null);    
+            }
+            else
+                getQuestion(dbConn, qid, myresult,callback);
         }
         ],
         function (err, result) {
@@ -129,11 +136,17 @@ router.get('/:qid/img', function(req, res, next) {
         });
 });
 
-// process POST on URI /questions which creates a new question
-router.post('/', function(req, res, next) {
+
+
+
+// process POST on URI /questions/question/delete which deletes the questions in removeQuestion param.
+router.post('/question/delete', function(req, res, next) {
     var dbConn;
     var removeQuestion = req.body.removeQuestion;  // If questions are being deleted from the list this will have value(s)
-
+    if (!removeQuestion) {
+        res.redirect("../../questions");
+        return;
+    }
     var myresult = {question : undefined};
 
     async.series([
@@ -149,25 +162,17 @@ router.post('/', function(req, res, next) {
                 if (removeQuestion) {
                     deleteQuestions(dbConn,removeQuestion,callback);
                 }
-                else {
-                    myresult.question = new Question();
-                    myresult.question.setType(1); // a better default for editing a new question
-                    callback(null, null);
-                }
             }
             ],
             function (error, result) {
                 if (error) {
                     dbConn.release();
                     console.log(error.message + "\n" + error.stack);
-                    res.send('Encountered error in post(/questions),' + error.message + '<br>' + error.stack);
+                    res.send('Encountered error in post(/questions/question/delete),' + error.message + '<br>' + error.stack);
                 }
                 else {
                     dbConn.release();
-                    if (removeQuestion)
-                        res.redirect("/questions");
-                    else
-                        res.render('question', {qid: 'new', qobj: myresult.question});
+                    res.redirect("../../questions");
                 }
             });
 
@@ -212,7 +217,8 @@ router.post('/:qid', upload.fields([{name: 'image', maxcount: 1}, {name: 'aChoic
             }
             else {
                 dbConn.release();
-                res.render('question', {qid: myresult.question.id, qobj: myresult.question});
+                res.redirect(myresult.question.id ); // do a GET on /questions/<id>
+                // res.render('question', {qid: myresult.question.id, qobj: myresult.question});
             }
         });
 

@@ -46,7 +46,6 @@ Question.prototype.initFromRequest = function (req, id) {
     this.warnTime =  req.body.warnTime;
     if (this.warnTime == NO_TIME_LIMIT)
         this.warnTime = undefined;
-    this.imageURL = req.body.imageurl;
     if (req.files.image)
         this.image = req.files.image ; // this is the image file that gets put in a folder by multer
     this.type= req.body.type;  // one of shortAnswer, multiChoice, longAnswer

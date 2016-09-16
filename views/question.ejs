@@ -2,7 +2,7 @@
 <html>
 <head>
     <!--<title>Edit Question <%= qid %></title>-->
-    <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <link rel='stylesheet' href='../stylesheets/style.css'/>
     <script type="application/javascript">
         function validateQuestion () {
             // TODO need to make sure multichoices don't have holes.
@@ -12,16 +12,15 @@
 </head>
 
 <body>
-<a href="/tests">View All Tests</a> &nbsp; &nbsp; <a href="/questions">View All Questions</a>
+<!--  the cur URL is like /context/questions/45  and we want /context/tests -->
+<a href="../tests">View All Tests</a> &nbsp; &nbsp; <a href="../questions">View All Questions</a>
 <br><br>
 <!-- See for doc on view helpers https://github.com/tanema/express-helpers/wiki -->
-<form method="post" enctype="multipart/form-data" action="/questions/<%= qid %>" onsubmit="return validateQuestion()">
+<form method="post" enctype="multipart/form-data" action="<%= qid %>" onsubmit="return validateQuestion()">
 
 Question ID:<%= qid %>
 <br>
 
-Image URL: <%- text_field_tag('imageurl',qobj.imageURL) %>
-<br>
 
 Name: <%- text_field_tag('name',qobj.name) %>
 <br>
@@ -41,7 +40,7 @@ Answer: <%- text_field_tag('answer', qobj.answer) %>
 
 Image file: <%- file_field_tag("image",{"value":5}) %> <br/>
 <% if (qobj.image) { %>
-   <img src="/questions/<%= qid %>/img">
+   <img src="<%= qid %>/img">
     <br>
     <%- checkbox_tag('removeImage', {"value": "remove"}) %> Remove the image from this question
     <br><br>

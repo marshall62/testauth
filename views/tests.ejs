@@ -2,16 +2,16 @@
 <head>
     <script type="application/javascript">
         function addTest() {
-            document.location.href = "/tests/new";
+            document.location.href = "./tests/new";
         }
     </script>
 </head>
 <body>
-<a href="/questions">View All Questions</a>
+<a href="./questions">View All Questions</a>
 <br><br>
 Here are the Pre/Post tests
 
-<form action="/tests", method="post">
+<form action="./tests", method="post">
 
 <table>
     <tr><td>Del</td><td></td><td><input type="button" name="newTest" onclick="addTest()" value="+"></td></tr>
@@ -19,7 +19,7 @@ Here are the Pre/Post tests
     <tr>
         <td> <%- checkbox_tag('removeTest',{"value": test.id}) %></td>
         <td><%= test.id %></td>
-        <td> <a href="/tests/<%= test.id%>"><%= test.name %> <%= test.isActive %> </a>  </td>
+        <td> <a href="./tests/<%= test.id%>"><%= test.name %> <%= test.isActive %> </a>  </td>
     </tr>
     <% }); %>
 </table>
