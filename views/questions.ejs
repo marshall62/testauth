@@ -3,7 +3,7 @@
     <script type="application/javascript">
         function addQuestion() {
             var form = document.getElementById("myform");
-            form.action = "./questions/new";
+            form.action = "questions/new";
             form.method = "GET";
             form.submit();
         }
@@ -14,7 +14,7 @@
 <br><br>
 Here are all the Pre/Post questions
 
-<form id="myform" action="questions/question/delete", method="post">
+<form id="myform" action="questions", method="post">
 
     <table>
         <tr><td>Del</td><td></td><td><input type="button" onclick="addQuestion()" name="NewQuestion" value="Create New Question"> </td></tr>
@@ -22,7 +22,7 @@ Here are all the Pre/Post questions
         <tr>
             <td> <%- checkbox_tag('removeQuestion',{"value": question.id}) %></td>
             <td><%= question.id %></td>
-            <td> <a href="./questions/<%= question.id%>"> <%= question.descr %> </a>  </td>
+            <td> <a title="<%= question.hoverText %>" href="questions/<%= question.id%>"> <%= question.descr %> </a>  </td>
         </tr>
         <% }); %>
     </table>

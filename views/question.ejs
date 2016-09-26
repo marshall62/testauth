@@ -32,6 +32,8 @@ Type:<%- select_tag("type",
 {"value": qobj.type}) %>
 <br/>
 
+Hover Text: <%- text_field_tag('hoverText',qobj.hoverText) %>
+<br>
 
 <% if (!qobj.isMultiChoice() ) { %>
 Answer: <%- text_field_tag('answer', qobj.answer) %>

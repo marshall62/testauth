@@ -63,7 +63,8 @@ Question.prototype.initFromRequest = function (req, id) {
     }
     else {
         this.answer = req.body.answer ? req.body.answer.trim() : undefined;
-    }    
+    } 
+    this.hoverText = req.body.hoverText;
 } 
 
 // initialize properties based on a row from the question table in the db
@@ -86,6 +87,7 @@ Question.prototype.initFromRow = function (row) {
     }
     this.imageURL = row.url;  // if images are just URLs, then this will be the image url.  Otherwise the line below is the image
     this.image = row.image;
+    this.hoverText = row.hoverText;
 }
 
 

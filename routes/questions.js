@@ -139,12 +139,12 @@ router.get('/:qid/img', function(req, res, next) {
 
 
 
-// process POST on URI /questions/question/delete which deletes the questions in removeQuestion param.
-router.post('/question/delete', function(req, res, next) {
+// process POST on URI /questions which deletes the questions in removeQuestion param.
+router.post('/', function(req, res, next) {
     var dbConn;
     var removeQuestion = req.body.removeQuestion;  // If questions are being deleted from the list this will have value(s)
     if (!removeQuestion) {
-        res.redirect("../../questions");
+        res.redirect("questions");
         return;
     }
     var myresult = {question : undefined};
@@ -172,7 +172,7 @@ router.post('/question/delete', function(req, res, next) {
                 }
                 else {
                     dbConn.release();
-                    res.redirect("../../questions");
+                    res.redirect("questions");
                 }
             });
 
@@ -274,10 +274,10 @@ function insertNewQuestion (conn, q, callback) {
     imgdata = q.image ? fs.readFileSync(q.image[0].path) : undefined ;
     if (q.isMultiChoice()) {
         qry = "insert into prepostproblem (name, description, waitTimeSecs, ansType, " +
-            "achoice, bchoice, cchoice, dchoice, echoice, answer, image) " +
-            "values (?,?,?,?,?,?,?,?,?,?,?)";
+            "achoice, bchoice, cchoice, dchoice, echoice, answer, image, hoverText) " +
+            "values (?,?,?,?,?,?,?,?,?,?,?,?)";
         vals = [q.name, q.descr, q.warnTime, q.getTypeCode(),
-            q.aAns, q.bAns, q.cAns, q.dAns, q.eAns, q.answer, imgdata];
+            q.aAns, q.bAns, q.cAns, q.dAns, q.eAns, q.answer, imgdata, q.hoverText];
     }
     conn.query(qry, vals,
         function (error, result) {
@@ -315,14 +315,14 @@ function updateExistingQuestion (conn,q, removeImage, callback) {
         imgdata = undefined;
     // if there is no uploaded image or not removeImage box checked, update without affecting the image
     if (!q.image && !removeImage) {
-        qry = "update prepostproblem set name=?, description=?, waitTimeSecs=?, anstype=?, achoice=?, bchoice=?, cchoice=?, dchoice=?, echoice=?, answer=? where id = ?";
-        vals = [q.name,q.descr, q.warnTime, q.getTypeCode(), q.aAns, q.bAns, q.cAns, q.dAns, q.eAns, q.answer, q.id];
+        qry = "update prepostproblem set name=?, description=?, waitTimeSecs=?, anstype=?, achoice=?, bchoice=?, cchoice=?, dchoice=?, echoice=?, answer=?, hoverText=? where id = ?";
+        vals = [q.name,q.descr, q.warnTime, q.getTypeCode(), q.aAns, q.bAns, q.cAns, q.dAns, q.eAns, q.answer, q.hoverText,q.id];
 
     }
 
     else {
-        qry = "update prepostproblem set name=?, description=?, waitTimeSecs=?, anstype=?, achoice=?, bchoice=?, cchoice=?, dchoice=?, echoice=?, answer=?, image=?  where id = ?";
-        vals = [q.name, q.descr, q.warnTime, q.getTypeCode(), q.aAns, q.bAns, q.cAns, q.dAns, q.eAns, q.answer, imgdata, q.id];
+        qry = "update prepostproblem set name=?, description=?, waitTimeSecs=?, anstype=?, achoice=?, bchoice=?, cchoice=?, dchoice=?, echoice=?, answer=?, image=?, hoverText=?  where id = ?";
+        vals = [q.name, q.descr, q.warnTime, q.getTypeCode(), q.aAns, q.bAns, q.cAns, q.dAns, q.eAns, q.answer, imgdata, q.hoverText, q.id];
     }
     conn.query(qry, vals,
         function (error, rows)  {
