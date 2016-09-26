@@ -7,7 +7,9 @@ const router = express.Router();
 const fs = require("fs");
 const db = require('../db');
 const multer = require('multer');
-const upload = multer({ dest: './uploads' });
+var limits = { fileSize: 100 * 1024 * 1024, files:1 };
+// const upload = multer({ dest: './uploads', limits: limits });
+const upload = multer({ dest: '/tmp', limits: limits });
 const async = require('async');
 var Question = require('../model/Question');
 /*
