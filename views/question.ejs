@@ -8,6 +8,33 @@
             // TODO need to make sure multichoices don't have holes.
             return true;
         }
+
+        function fetchQuestion (qid) {
+            document.location.href =  qid;
+        }
+
+        function changeType () {
+            var sel = document.getElementById("typeSelector");
+//            Will be one of: multiChoice, shortAnswer, longAnswer
+            var strUser = sel.options[sel.selectedIndex].value;
+            if (strUser == 'multiChoice') {
+                document.getElementById("correctAnswer").style.display = "none";
+                var e = document.getElementById('multiChoices');
+                e.style.display = (e.style.display == 'block') ? 'none' : 'block';
+            }
+            else if (strUser == 'shortAnswer') {
+                document.getElementById("correctAnswer").style.display = "block";
+                var e = document.getElementById('multiChoices');
+                e.style.display = 'none' ;
+            }
+            else if (strUser == 'longAnswer') {
+                document.getElementById("correctAnswer").style.display = "block";
+                var e = document.getElementById('multiChoices');
+                e.style.display = 'none';
+            }
+
+
+        }
     </script>
 </head>
 
@@ -25,19 +52,39 @@ Question ID:<%= qid %>
 Name: <%- text_field_tag('name',qobj.name) %>
 <br>
 
-Type:<%- select_tag("type",
-[{"value": 'multiChoice',"text": "Multiple Choice"},
-{"value": 'shortAnswer',"text": "Short Answer"},
-{"value": "longAnswer","text": "Text Answer"}],
-{"value": qobj.type}) %>
-<br/>
+
+
+Type: <select id="typeSelector" onchange="changeType();" value='<%- qobj.type %>' id='type' name='type' >
+    <% if (qobj.isMultiChoice()) { %>
+        <option value='multiChoice' selected='selected' >Multiple Choice</option>
+    <% } else { %>
+        <option value='multiChoice'>Multiple Choice</option>
+    <% } %>
+    <% if (qobj.isShortAnswer()) { %>
+    <option value='shortAnswer' selected='selected' >Short Answer</option>
+    <% } else { %>
+    <option value='shortAnswer'>Short Answer</option>
+    <% } %>
+    <% if (qobj.isLongAnswer()) { %>
+    <option value='longAnswer' selected='selected' >Text Answer</option>
+    <% } else { %>
+    <option value='longAnswer'>Text Answer</option>
+    <% } %>
+
+</select>
+    <br/>
+
+
 
 Hover Text: <%- text_field_tag('hoverText',qobj.hoverText) %>
 <br>
 
-<% if (!qobj.isMultiChoice() ) { %>
-Answer: <%- text_field_tag('answer', qobj.answer) %>
+<% if (qobj.isShortAnswer()  ) { %>
+   <div id="correctAnswer"> Correct Answer: <%- text_field_tag('answer', qobj.answer) %>  </div>
+<% } else { %>
+    <div id="correctAnswer" style="display:none"> Correct Answer: <%- text_field_tag('answer', qobj.answer) %>  </div>
 <% } %>
+
 <br/>
 
 Image file: <%- file_field_tag("image",{"value":5}) %> <br/>
@@ -60,6 +107,10 @@ Warn Student to answer time:
 <br/> <br/>
 
 <% if (qobj.isMultiChoice()) { %>
+    <div id="multiChoices" >
+<% } else { %>
+    <div id="multiChoices" style="display:none">
+<% } %>
 Multiple choices (select the one that is the correct answer):
     <table>
     <% if (qobj.answer == 'a') { %>
@@ -102,13 +153,14 @@ Multiple choices (select the one that is the correct answer):
         </table>
 
 <br/>
-<% } %>
+    </div>
+
 
 <!-- insert here -->
 <br/>
 <br/>
 <input type="submit" value="Save" name="action">
-<input type="reset" value="Reset" name="reset">
+<input type="button" value="Cancel" onclick="fetchQuestion(<%=qobj.id %>)" name="reset">
 
 
 

@@ -281,6 +281,13 @@ function insertNewQuestion (conn, q, callback) {
         vals = [q.name, q.descr, q.warnTime, q.getTypeCode(),
             q.aAns, q.bAns, q.cAns, q.dAns, q.eAns, q.answer, imgdata, q.hoverText];
     }
+    else  {
+        qry = "insert into prepostproblem (name, description, waitTimeSecs, ansType, " +
+            "answer, image, hoverText) " +
+            "values (?,?,?,?,?,?,?)";
+        vals = [q.name, q.descr, q.warnTime, q.getTypeCode(),
+            q.answer, imgdata, q.hoverText];
+    }
     conn.query(qry, vals,
         function (error, result) {
             q.id = result.insertId;  // if the insert fails the q.id will be corrupt.

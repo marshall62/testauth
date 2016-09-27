@@ -14,6 +14,10 @@ https://docs.google.com/forms/d/1WRymuqCfn4nHPx5QmMF0frvQUZuHIjojuhKD2mNRoKU/edi
 Posttest 8th grade:
 https://docs.google.com/forms/d/1FeTCyTWNvZYVHcGUEPbynBzNzpUt06Nlz-cK7lwfHdI/edit
 
+Documentation on EJS or express functions View Helpers to generate HTML tags:
+
+https://github.com/tanema/express-helpers/wiki
+
 This is a project marshall62/testauth on GitHub
 
 To release a new version:
