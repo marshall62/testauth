@@ -61,7 +61,34 @@ router.get('/', function(req, res, next) {
         } );
 });
 
+router.get('/preview/:qid', function(req, res, next) {
+    var qid = req.params.qid;
+    var dbConn;
+    var myresult = {question : undefined};
+    async.series([
+            function (callback) {
+                db.pool.getConnection(function (err, conn) {
+                    dbConn = conn;
+                    callback(err,null);
+                });
+            },
+            function (callback) {
+                    getQuestion(dbConn, qid, myresult,callback);
+            }
+        ],
+        function (err, result) {
+            if (err) {
+                dbConn.release();
+                console.log(error.message + "\n" + error.stack);
+                res.send('Encountered error in get(/questions/:qid),' + error.message + '<br>' + error.stack);
+            }
+            else {
+                dbConn.release();
+                res.render('questionPreview', {qid: qid, qobj: myresult.question});
+            }
+        });
 
+} );
 
 // process GET on URI /questions/<id> to return a question editing page  or /questions/new for a new question editing page.
 router.get('/:qid', function(req, res, next) {
