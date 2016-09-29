@@ -73,7 +73,7 @@ router.post('/', function(req, res, next) {
 
 
 // process GET on URI /tests/<id> to return a test editing page
-router.get('/:tid', function(req, res, next) {
+router.get('/:tid(\\d+)', function(req, res, next) {
     var tid = req.params.tid;
     var dbConn;
     var myresult = {test : undefined};
@@ -190,8 +190,12 @@ router.get('/preview', function(req, res, next) {
             });
         },
         function (callback) {
+            getTest(dbConn, tid, myresult,callback, next);
+        },
+
+        function (callback) {
             if (tid && qid) {
-                getTest(dbConn, tid, myresult,callback, next);
+                // get the next question object after qid out of the test object
                 nextQuest = getNextQuestion(myresult.test, qid); // will return null if at last question in test
                 if (nextQuest) {
                     myresult.question = nextQuest;
@@ -201,14 +205,13 @@ router.get('/preview', function(req, res, next) {
                 callback(null,null);
             }
             else if (tid) {
-                getTest(dbConn, tid, myresult,callback, next);
                 if (myresult.test.questions) {
                     myresult.question = myresult.test.questions[0];
                     myresult.qid = myresult.test.questionIds[0];
                     callback(null,null);
                 }
                 // The test has no questions, so we can't preview it,
-                callback(new Error("This Test has no questions.  Cannot preview."), null);
+                else callback(new Error("This Test has no questions.  Cannot preview."), null);
             }
 
         }
@@ -221,11 +224,25 @@ router.get('/preview', function(req, res, next) {
             }
             else {
                 dbConn.release();
-                res.render('questionPreview', {qid: myresult.qid, qobj: myresult.question, tid: tid});
+                if (isLastQ)
+                    res.render('test', {test: myresult.test, tid: tid});
+                else
+                    res.render('questionPreview', {qid: myresult.qid, qobj: myresult.question, tid: tid});
             }
         });
 
 } );
+
+//  find the qid question in the test and return the question after that or null
+function getNextQuestion (test, qid) {
+    var qs = test.questions;
+    var qids = test.questionIds;
+    for (var i=0;i<qs.length-1;i++) {
+        if (qids[i] == qid)
+            return qs[i+1]; // the next question;
+    }
+    return null;
+}
 
 
 // Puts all the questions into an array

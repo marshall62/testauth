@@ -64,7 +64,7 @@ router.get('/', function(req, res, next) {
 
 
 // process GET on URI /questions/<id> to return a question editing page  or /questions/new for a new question editing page.
-router.get('/:qid', function(req, res, next) {
+router.get('/:qid(\\d+)', function(req, res, next) {
     var qid = req.params.qid;
     var isNew = qid == 'new';  // 
     var dbConn;
@@ -86,8 +86,8 @@ router.get('/:qid', function(req, res, next) {
                 getQuestion(dbConn, qid, myresult,callback);
         }
         ],
-        function (err, result) {
-            if (err) {
+        function (error, result) {
+            if (error) {
                 dbConn.release();
                 console.log(error.message + "\n" + error.stack);
                 res.send('Encountered error in get(/questions/:qid),' + error.message + '<br>' + error.stack);
@@ -229,9 +229,9 @@ router.post('/:qid', upload.fields([{name: 'image', maxcount: 1}, {name: 'aChoic
 
 // process a /questions/preview?qid=<q> request
 router.get('/preview', function(req, res, next) {
-    var qid = req.params.qid;
+    var qid = req.query.qid;
     var dbConn;
-    var myresult = { qid: undefined, question: undefined};
+    var myresult = { question: undefined};
     async.series([
         function (callback) {
             db.pool.getConnection(function (err, conn) {
@@ -252,7 +252,7 @@ router.get('/preview', function(req, res, next) {
             }
             else {
                 dbConn.release();
-                res.render('questionPreview', {qid: myresult.qid, qobj: myresult.question});
+                res.render('questionPreview', {qid: myresult.question.id, qobj: myresult.question, tid: undefined});
             }
         });
 
