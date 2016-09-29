@@ -19,12 +19,14 @@
             return true;
         }
 
+        // cur URL is like http:.../tests/102 and this loads http:.../tests/102
         function fetchTest (tid) {
-            document.location.href = "../tests/" + tid;
+            document.location.href =  tid;
         }
 
+        // cur URL is like http:.../tests/102 .  Will goto URL http .../questions/preview?tid=tid
         function previewTest (tid) {
-            document.location.href = "../tests/preview/" + tid;
+            document.location.href = "../../questions/preview?tid=" + tid;
         }
 
         function addQuestionRow () {

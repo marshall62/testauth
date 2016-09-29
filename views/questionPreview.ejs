@@ -19,7 +19,10 @@
 
 <body>
 
-<!-- See for doc on view helpers https://github.com/tanema/express-helpers/wiki -->
+<!-- See for doc on view helpers https://github.com/tanema/express-helpers/wiki
+ The path to get to this page is http ... questions/preview?qid...  or http... tests/preview?tid&qid
+ -->
+
  <a href="../../questions/<%= qid %>">Edit This Question</a>
 <% if (tid) { %>
 <a href="../../tests/<%= tid %>">Edit This Test</a>
@@ -59,7 +62,7 @@
     <% } %>
 
 <% if (tid) { %>
-<a href="../../tests/preview/<%= tid %>/questionAfter/<%= qid %>">Next Question</a>
+<a href="../../tests/preview?tid=<%= tid %>&qid=<%= qid %>">Next Question</a>
 <% } %>
 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

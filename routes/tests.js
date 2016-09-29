@@ -170,34 +170,54 @@ router.post('/:tid', function(req, res, next) {
 });
 
 
-router.get('/preview/:tid', function(req, res, next) {
-    var tid = req.params.tid;
+// process URLs like /tests/preview?qid=<q>&tid=<t>
+// Valid combos:
+
+// o  Just tid:  Show a preview of the first question in the test with links to the question editor and the test editor
+// o  tid and qid:  Show a preview of the next question in the test that follows question <q> with appropriate links to editors
+//   If a question cannot be found for a test, it goes to the test editor.
+router.get('/preview', function(req, res, next) {
+    var qid = req.query.qid;
+    var tid = req.query.tid;
+    var isLastQ = false;
     var dbConn;
-    var myresult = {test : undefined, qid: undefined, question: undefined};
+    var myresult = {question : undefined, test: undefined};
     async.series([
-            function (callback) {
-                db.pool.getConnection(function (err, conn) {
-                    dbConn = conn;
-                    callback(err,null);
-                });
-            },
-            function (callback) {
+        function (callback) {
+            db.pool.getConnection(function (err, conn) {
+                dbConn = conn;
+                callback(err,null);
+            });
+        },
+        function (callback) {
+            if (tid && qid) {
                 getTest(dbConn, tid, myresult,callback, next);
-            },
-            function (callback) {
-                if (myresult.test && myresult.test.questionIds && myresult.test.questions) {
-                    myresult.qid = myresult.test.questionIds[0];
+                nextQuest = getNextQuestion(myresult.test, qid); // will return null if at last question in test
+                if (nextQuest) {
+                    myresult.question = nextQuest;
+                    myresult.qid = nextQuest.id;
+                }
+                else isLastQ = true;
+                callback(null,null);
+            }
+            else if (tid) {
+                getTest(dbConn, tid, myresult,callback, next);
+                if (myresult.test.questions) {
                     myresult.question = myresult.test.questions[0];
+                    myresult.qid = myresult.test.questionIds[0];
                     callback(null,null);
                 }
-                else  callback(new Error("This test does not have questions",null));
+                // The test has no questions, so we can't preview it,
+                callback(new Error("This Test has no questions.  Cannot preview."), null);
             }
-        ],
+
+        }
+    ],
         function (err, result) {
             if (err) {
                 dbConn.release();
-                console.log(err.message + "\n" + err.stack);
-                res.send('Encountered error in get(/tests/preview/:tid),' + err.message + '<br>' + err.stack);
+                console.log(error.message + "\n" + error.stack);
+                res.send('Encountered error in get(/tests/preview),' + error.message + '<br>' + error.stack);
             }
             else {
                 dbConn.release();
@@ -206,55 +226,6 @@ router.get('/preview/:tid', function(req, res, next) {
         });
 
 } );
-
-
-router.get('/preview/:tid/questionAfter/:qid', function(req, res, next) {
-    var tid = req.params.tid;
-    var qid = req.params.qid;
-    var dbConn;
-    var myresult = {test : undefined, qid: undefined, question: undefined};
-    async.series([
-            function (callback) {
-                db.pool.getConnection(function (err, conn) {
-                    dbConn = conn;
-                    callback(err,null);
-                });
-            },
-            function (callback) {
-                getTest(dbConn, tid, myresult,callback, next);
-            },
-            function (callback) {
-                if (myresult.test && myresult.test.questionIds && myresult.test.questions) {
-                    var qids = myresult.test.questionIds;
-                    for (var i=0;i<qids.length-1;i++) {
-                        if (qids[i] == qid) {
-                            myresult.qid = qids[i+1];
-                            myresult.question = myresult.test.questions[i+1];
-                        }
-                    }
-                    callback(null,null);
-                }
-                else  callback(new Error("This test does not have questions",null));
-            }
-        ],
-        function (err, result) {
-            if (err) {
-                dbConn.release();
-                console.log(err.message + "\n" + err.stack);
-                res.send('Encountered error in get(/tests/preview/:tid),' + err.message + '<br>' + err.stack);
-            }
-            else {
-                dbConn.release();
-                if (myresult.qid)
-                    res.render('questionPreview', {qid: myresult.qid, qobj: myresult.question, tid: tid});
-                else
-                    res.render('test', {test: myresult.test, tid: tid});
-            }
-        });
-
-} );
-
-
 
 
 // Puts all the questions into an array
