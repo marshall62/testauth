@@ -173,7 +173,8 @@ Multiple choices (select the one that is the correct answer):
 
 <!-- insert here -->
 <br/>
-<input type="button" value="Preview" onclick="previewQuestion(<%=qobj.id %>)" name="preview">
+
+<a href="preview?qid=<%=qobj.id%>">Preview Question</a>
 <br/>
         <br>
 <input type="submit" value="Save" name="action">
