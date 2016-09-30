@@ -23,9 +23,9 @@
  The path to get to this page is http ... questions/preview?qid...  or http... tests/preview?tid&qid
  -->
 
- <a href="../../questions/<%= qid %>">Edit This Question</a>
+ <a href="../questions/<%= qid %>">Edit This Question</a>
 <% if (tid) { %>
-<a href="../../tests/<%= tid %>">Edit This Test</a>
+<a href="<%= tid %>">Edit This Test</a>
 <% } %>
 
  <br>
@@ -60,9 +60,9 @@
 
     </table>
     <% } %>
-
+ <br>
 <% if (tid) { %>
-<a href="../../tests/preview?tid=<%= tid %>&qid=<%= qid %>">Next Question</a>
+<a href="preview?tid=<%= tid %>&qid=<%= qid %>">Next Question</a>
 <% } %>
 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
