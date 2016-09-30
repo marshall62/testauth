@@ -32,7 +32,7 @@ Here are all the Pre/Post questions
         <tr>
             <td> <%- checkbox_tag('removeQuestion',{"value": question.id}) %></td>
             <td><%= question.id %></td>
-            <td> <a title="<%= question.hoverText %>" href="../questions/<%= question.id%>"> <%= question.descr %> </a>  </td>
+            <td> <a title="<%= question.hoverText %>" href="questions/<%= question.id%>"> <%= question.descr %> </a>  </td>
         </tr>
         <% }); %>
     </table>
