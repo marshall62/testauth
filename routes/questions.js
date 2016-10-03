@@ -226,6 +226,36 @@ router.post('/:qid', upload.fields([{name: 'image', maxcount: 1}, {name: 'aChoic
 
 });
 
+// An AJAX request sent by the test form to get the description of a question from its id.
+router.get('/descr/:qid', function(req,res,next) {
+    var qid = req.params.qid;
+    var dbConn;
+    var myresult = { question: undefined};
+    async.series([
+        function (callback) {
+            db.pool.getConnection(function (err, conn) {
+                dbConn = conn;
+                callback(err,null);
+            });
+        },
+
+        function (callback) {
+            getQuestion(dbConn,qid,myresult,callback);
+        }],
+        function (err, result) {
+            if (err) {
+                dbConn.release();
+                console.log(err.message + "\n" + err.stack);
+                res.json({descr: 'Error! not found', hoverText: ''});
+            }
+            else {
+                dbConn.release();
+                res.json(myresult.question);;
+            }
+        });
+
+});
+
 
 // process a /questions/preview?qid=<q> request
 router.get('/preview', function(req, res, next) {

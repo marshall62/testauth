@@ -2,6 +2,9 @@
 <html>
 <head>
     <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src = "https://code.jquery.com/jquery.js"></script>
+    <script src = "js/bootstrap.min.js"></script>
     <link href = "stylesheets/bootstrap.min.css" rel = "stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -10,11 +13,14 @@
     <!--[if lt IE 9]>
     <script src = "https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src = "https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+
     <![endif]-->
     <link rel='stylesheet' href='../stylesheets/style.css'/>
 
     <title>Edit Test <%= tid %></title>
     <script type="application/javascript">
+        var newQuestionCounter =0;
+
         function validateTest () {
             return true;
         }
@@ -43,10 +49,48 @@
 //            tab.rows[nRows-1].cells[2].innerHTML = "<input type='button' onclick='moveDown(" +nRows+ ")' value='v'>";
 //            d.innerHTML = "<input type='button' onclick='moveDown(" +nRows+ ")' value='v'>";
             var e = r.insertCell(3)  ;
-            e.innerHTML = "<input type='textfield' name='questionIds' size='3'>" ;
+            newQuestionCounter++;
+            e.innerHTML = "<input id='newQuestion-" +newQuestionCounter + "' onblur='getQuestion(" +newQuestionCounter+ ")' type='textfield' name='questionIds' size='3'>" ;
             var f = r.insertCell(4) ;
 
         }
+
+
+
+        // This was doing some AJAX that leaves the form in a state that is confusing to user
+        // because it doesn't represent the saved DB state of the test.
+        function getQuestion (newQuestNum) {
+            var id = 'newQuestion-' + newQuestNum;
+            var textfield = document.getElementById(id);
+            var questId = textfield.value;
+            if (!questionAlreadyInTest(questId)) {
+                var tab = document.getElementById("questionTable");
+                var rowAdded = tab.rows.length;
+                var questDescr = tab.rows[rowAdded - 1].cells[4];
+                // get the questions desdr and hover text from the id typed in
+                $.getJSON("../questions/descr/" + questId, function (data) {
+                    var descr = data.descr;
+                    var hoverText = data.hoverText;
+                    var linkToQ;
+                    if (descr.startsWith("Error"))
+                        linkToQ = descr;
+                    else {
+                        var f = document.getElementById("testForm");
+                        f.submit();
+                    }
+                    questDescr.innerHTML = linkToQ;
+                });
+            }
+            else {
+                var tab = document.getElementById("questionTable");
+                var rowAdded = tab.rows.length;
+                var questDescr = tab.rows[rowAdded - 1].cells[4];
+                questDescr.innerHTML = "That question is already in the test!";
+            }
+
+        }
+
+
 
         function getRowVals (cells) {
             // checkBox
@@ -59,7 +103,7 @@
             var link = cells[4].innerHTML;
             var hiddenId = cells[5].innerHTML;
             return [checkBox, id, link, hiddenId] ;
-            alert("The checkbox is " + isChecked +  " id is " + id + " link " + link);
+
         }
 
         function moveUp (n) {
@@ -106,6 +150,26 @@
             window.open("../questions","", "width=500,height=600,toolbar=yes,scrollbars=yes,resizable=yes");
         }
 
+        // Need to prevent the ENTER key from submitting the form
+        $(document).ready(function() {
+            $('#testForm').on('keyup keypress', function(e) {
+                var keyCode = e.keyCode || e.which;
+                if (keyCode === 13) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+
+        function questionAlreadyInTest (qid) {
+            var ids = [<%= test.questionIds %>];
+            qid = parseInt(qid);
+            for (var i=0; i<ids.length;i++) {
+                if (ids[i] == qid)
+                    return true;
+            }
+            return false;
+        }
     </script>
 </head>
 
@@ -114,7 +178,7 @@
     <br><br>
 
 <!-- See for doc on view helpers https://github.com/tanema/express-helpers/wiki -->
-    <form method="post" action="<%= tid %>" onsubmit="return validateTest()">
+    <form id="testForm" method="post" action="<%= tid %>" onsubmit="return validateTest()">
 
     Test ID: <%= tid %>
     <br>
@@ -138,7 +202,7 @@
                         <input type="button" onclick="moveDown( <%= i %> )" value="v"></td>
                     <% } %>
                 <td> <%= q.id %> </td>
-                <td> <a href="../questions/<%= q.id%>"><%= q.descr %></a></td>
+                <td> <a title="<%= q.hoverText %>" href="../questions/<%= q.id%>"><%= q.descr %></a></td>
                 <td><input type="hidden" name="questionIds" value="<%= q.id %>"></td>
             </tr>
         <% } %>
@@ -151,10 +215,8 @@
         <input type="button" value="Cancel" onclick="fetchTest(<%=test.id %>)" name="reset">
 
     </form>
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-<script src = "https://code.jquery.com/jquery.js"></script>
 
-<!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src = "js/bootstrap.min.js"></script>
+
+
 </body>
 </html>
