@@ -24,7 +24,7 @@ To release a new version:
 
 To put it on rose go to /mnt/net/nodejs/testauth
 
-git pull
+sudo git pull
 pm2 restart testauth
 
 If you are going to implement just one of these as an example, do the
