@@ -140,8 +140,10 @@ router.post('/:tid', function(req, res, next) {
                 },
                 // write changes to the test in the db
                 function (callback) {
-                    if (tid != 'new')
+                    if (tid != 'new') {
+                        myresult.test.name = req.body.name;
                         updateTest(dbConn, myresult, qidsToRemove, questionId, callback, next);
+                    }
                     else {
                         try {
                             createNewTest(dbConn, req, myresult, questionId, callback, next);
