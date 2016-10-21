@@ -12,7 +12,8 @@ var Test = function () {
 // initialize properties based on a request object
 // id is optional.  Not included when the question is newly created.
 Test.prototype.initFromRequest = function (req, id) {
-    this.name = req.body.name;    
+    this.name = req.body.name;  
+    this.isActive = req.body.isActive;
 }
 
 // initialize properties based on a row from the question table in the db

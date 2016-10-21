@@ -142,6 +142,7 @@ router.post('/:tid', function(req, res, next) {
                 function (callback) {
                     if (tid != 'new') {
                         myresult.test.name = req.body.name;
+                        myresult.test.isActive = req.body.isActive ? 1 : 0;
                         updateTest(dbConn, myresult, qidsToRemove, questionId, callback, next);
                     }
                     else {
@@ -367,7 +368,7 @@ function updateTest(dbConn, myresult, qidsToRemove, questionIds, cb, next) {
                 },
                 // update other fields of the test
                 function (callback) {
-                    dbConn.query("update preposttest set name=? where id=?", [test.name, test.id], callback);
+                    dbConn.query("update preposttest set name=?, isActive=? where id=?", [test.name, test.isActive, test.id], callback);
                 }
             ],
             function (err, result) {

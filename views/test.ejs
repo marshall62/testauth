@@ -183,6 +183,13 @@
     Test ID: <%= tid %>
     <br>
     Name: <%- text_field_tag("name",{"value": test.name}) %>
+    <br>
+    Active:
+        <% if (test.isActive) { %>
+        <input type="checkbox" name="isActive" checked>
+        <% } else { %>
+        <input type="checkbox" name="isActive">
+        <% } %>
     <!--Questions size: <%= test.questions.length %>-->
         <br><br>
 
