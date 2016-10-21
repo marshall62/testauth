@@ -21,6 +21,8 @@ https://github.com/tanema/express-helpers/wiki
 This is a project marshall62/testauth on GitHub
 
 To release a new version:
+------------------------
+push to github
 
 To put it on rose go to /mnt/net/nodejs/testauth
 

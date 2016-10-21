@@ -61,12 +61,8 @@ router.get('/', function(req, res, next) {
         } );
 });
 
-
-
-// process GET on URI /questions/<id> to return a question editing page  or /questions/new for a new question editing page.
-router.get('/:qid(\\d+)', function(req, res, next) {
-    var qid = req.params.qid;
-    var isNew = qid == 'new';  // 
+//  process a GET /questions/new request which returns an empty form for entering a new question.
+router.get('/new', function(req, res, next) {
     var dbConn;
     var myresult = {question : undefined};
     async.series([
@@ -77,13 +73,38 @@ router.get('/:qid(\\d+)', function(req, res, next) {
             });
         },
         function (callback) {
-            if (isNew) {
-                myresult.question = new Question();
-                myresult.question.setType(1); // a better default for editing a new question
-                callback(null, null);    
+            myresult.question = new Question();
+            myresult.question.setType(1); // a better default for editing a new question
+            callback(null, null);
+        }],
+        function (error, result) {
+            if (error) {
+                dbConn.release();
+                console.log(error.message + "\n" + error.stack);
+                res.send('Encountered error in get(/questions/new),' + error.message + '<br>' + error.stack);
             }
-            else
-                getQuestion(dbConn, qid, myresult,callback);
+            else {
+                dbConn.release();
+                res.render('question', {qid: undefined, qobj: myresult.question});
+            }
+        })  ;
+}   );
+
+// process GET on URI /questions/<id> to return a question editing page  or /questions/new for a new question editing page.
+router.get('/:qid(\\d+)', function(req, res, next) {
+// router.get('/:qid', function(req, res, next) {
+    var qid = req.params.qid;
+    var dbConn;
+    var myresult = {question : undefined};
+    async.series([
+        function (callback) {
+            db.pool.getConnection(function (err, conn) {
+                dbConn = conn;
+                callback(err,null);
+            });
+        },
+        function (callback) {
+            getQuestion(dbConn, qid, myresult,callback);
         }
         ],
         function (error, result) {
@@ -179,6 +200,8 @@ router.post('/', function(req, res, next) {
             });
 
 });
+
+
 
 // process POST on URI /questions/<id> to update or insert a question
 // Receives the multi-part form of a question as edited by the user.
