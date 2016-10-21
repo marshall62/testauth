@@ -64,31 +64,11 @@ router.get('/', function(req, res, next) {
 //  process a GET /questions/new request which returns an empty form for entering a new question.
 router.get('/new', function(req, res, next) {
     var dbConn;
-    var myresult = {question : undefined};
-    async.series([
-        function (callback) {
-            db.pool.getConnection(function (err, conn) {
-                dbConn = conn;
-                callback(err,null);
-            });
-        },
-        function (callback) {
-            myresult.question = new Question();
-            myresult.question.setType(1); // a better default for editing a new question
-            callback(null, null);
-        }],
-        function (error, result) {
-            if (error) {
-                dbConn.release();
-                console.log(error.message + "\n" + error.stack);
-                res.send('Encountered error in get(/questions/new),' + error.message + '<br>' + error.stack);
-            }
-            else {
-                dbConn.release();
-                res.render('question', {qid: undefined, qobj: myresult.question});
-            }
-        })  ;
-}   );
+    var myresult = {question: undefined};
+    myresult.question = new Question();
+    myresult.question.setType(1); // a better default for editing a new question
+    res.render('question', {qid: undefined, qobj: myresult.question});
+});
 
 // process GET on URI /questions/<id> to return a question editing page  or /questions/new for a new question editing page.
 router.get('/:qid(\\d+)', function(req, res, next) {

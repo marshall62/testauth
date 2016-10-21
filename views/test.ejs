@@ -208,6 +208,11 @@
         <% } %>
         </table>
         <br>
+
+        <% if (message) { %>
+           <%= message %>
+        <% } %>
+        <br>
         <a href="preview?tid=<%= test.id %>">Preview Test</a>
 
         <br><br>
