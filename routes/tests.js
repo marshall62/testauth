@@ -32,7 +32,7 @@ router.get('/', function(req, res, next) {
             }
             else {
                 dbConn.release();
-                res.render('tests', {tests: testArray});
+                res.render('tests', {tests: testArray,  message: undefined});
             }
         } );
 });
@@ -70,7 +70,12 @@ router.post('/', function(req, res, next) {
 
 } );
 
-
+// process GET on URI /tests/new to return a test editing page
+router.get('/new', function(req, res, next) {
+    var myresult = {test : undefined};
+    myresult.test = new Test();
+    res.render('test', {tid: undefined, test: myresult.test,  message: undefined});
+} );
 
 // process GET on URI /tests/<id> to return a test editing page
 router.get('/:tid(\\d+)', function(req, res, next) {
@@ -101,7 +106,7 @@ router.get('/:tid(\\d+)', function(req, res, next) {
             }
             else {
                 dbConn.release();
-                res.render('test', {tid: tid, test: myresult.test});
+                res.render('test', {tid: tid, test: myresult.test,  message: undefined});
             }
         })  ;
 
@@ -135,8 +140,11 @@ router.post('/:tid', function(req, res, next) {
                 },
                 // write changes to the test in the db
                 function (callback) {
-                    if (tid != 'new')
+                    if (tid != 'new') {
+                        myresult.test.name = req.body.name;
+                        myresult.test.isActive = req.body.isActive ? 1 : 0;
                         updateTest(dbConn, myresult, qidsToRemove, questionId, callback, next);
+                    }
                     else {
                         try {
                             createNewTest(dbConn, req, myresult, questionId, callback, next);
@@ -159,7 +167,7 @@ router.post('/:tid', function(req, res, next) {
                 }
                 else {
                     dbConn.release();
-                    res.render('test', {tid: myresult.test.id, test: myresult.test});
+                    res.render('test', {tid: myresult.test.id, test: myresult.test,  message: undefined});
                 }
             });
 
@@ -205,11 +213,14 @@ router.get('/preview', function(req, res, next) {
                 callback(null,null);
             }
             else if (tid) {
-                if (myresult.test.questions) {
+                if (myresult.test.questions.length > 0) {
                     myresult.question = myresult.test.questions[0];
                     myresult.qid = myresult.test.questionIds[0];
                     callback(null,null);
                 }
+                else if (myresult.test.questions.length == 0)
+                    callback(null,null);
+
                 // The test has no questions, so we can't preview it,
                 else callback(new Error("This Test has no questions.  Cannot preview."), null);
             }
@@ -224,8 +235,11 @@ router.get('/preview', function(req, res, next) {
             }
             else {
                 dbConn.release();
+
                 if (isLastQ)
-                    res.render('test', {test: myresult.test, tid: tid});
+                    res.render('test', {test: myresult.test, tid: tid,  message: undefined});
+                else if (myresult.test.questions.length == 0)
+                    res.render('test', {test: myresult.test, tid: tid, message: 'There are no questions in this test'});
                 else
                     res.render('questionPreview', {qid: myresult.qid, qobj: myresult.question, tid: tid});
             }
@@ -354,7 +368,7 @@ function updateTest(dbConn, myresult, qidsToRemove, questionIds, cb, next) {
                 },
                 // update other fields of the test
                 function (callback) {
-                    dbConn.query("update preposttest set name=? where id=?", [test.name, test.id], callback);
+                    dbConn.query("update preposttest set name=?, isActive=? where id=?", [test.name, test.isActive, test.id], callback);
                 }
             ],
             function (err, result) {

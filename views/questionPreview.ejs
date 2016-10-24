@@ -40,7 +40,7 @@
 <% if (qobj.isShortAnswer()  ) { %>
 <input type="text" name="answer">
     <% } else if (qobj.isLongAnswer() ) { %>
-    <input type="textarea" name="answer">
+        <%- text_area_tag('answer','') %>
     <% } else { %>
     <table>
         <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','a') %> </td> <td> <%= qobj.aAns %>  </td></tr>

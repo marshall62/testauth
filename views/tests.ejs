@@ -28,12 +28,13 @@ Here are the Pre/Post tests
 <form action="./tests", method="post">
 
 <table>
-  <tr><td>Del</td><td></td><td><input type="button" name="newTest" onclick="addTest()" value="+"></td></tr>
+  <tr><td>Del</td> <td></td ><td><input type="button" name="newTest" onclick="addTest()" value="+"></td> <td></td></tr>
   <% tests.forEach(function (test) { %>
   <tr>
       <td> <%- checkbox_tag('removeTest',{"value": test.id}) %></td>
       <td><%= test.id %></td>
-      <td> &nbsp;<a href="./tests/<%= test.id%>"><%= test.name %> <%= test.isActive %> </a>  </td>
+      <td> &nbsp;<a href="./tests/<%= test.id%>"><%= test.name %> </a>  </td>
+      <td><% if (!test.isActive) {%> inactive <% } %> </td>
   </tr>
   <% }); %>
 </table>

@@ -14,6 +14,9 @@ https://docs.google.com/forms/d/1WRymuqCfn4nHPx5QmMF0frvQUZuHIjojuhKD2mNRoKU/edi
 Posttest 8th grade:
 https://docs.google.com/forms/d/1FeTCyTWNvZYVHcGUEPbynBzNzpUt06Nlz-cK7lwfHdI/edit
 
+If you are going to implement just one of these as an example, do the
+7th grade, as it is the latest one we have done.
+
 Documentation on EJS or express functions View Helpers to generate HTML tags:
 
 https://github.com/tanema/express-helpers/wiki
@@ -21,14 +24,15 @@ https://github.com/tanema/express-helpers/wiki
 This is a project marshall62/testauth on GitHub
 
 To release a new version:
+------------------------
+push to github
 
 To put it on rose go to /mnt/net/nodejs/testauth
 
 sudo git pull
 pm2 restart testauth
 
-If you are going to implement just one of these as an example, do the
-7th grade, as it is the latest one we have done.
+
 
 How it's installed and running on Rose:
 
