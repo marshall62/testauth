@@ -4,8 +4,8 @@
     <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src = "https://code.jquery.com/jquery.js"></script>
-    <script src = "js/bootstrap.min.js"></script>
-    <link href = "stylesheets/bootstrap.min.css" rel = "stylesheet">
+    <script src = "../js/bootstrap.min.js"></script>
+    <link href = "../stylesheets/bootstrap.min.css" rel = "stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -26,8 +26,12 @@
         }
 
         // cur URL is like http:.../tests/102 and this loads http:.../tests/102
+        // but cancel could also be clicked on a new test which doesnt have ID yet.
         function fetchTest (tid) {
-            document.location.href =  tid;
+            if (tid)
+                document.location.href =  tid;
+            else
+                document.location.href = 'new';   // just load a new test form
         }
 
         // cur URL is like http:.../tests/102 .  Will goto URL http .../questions/preview?tid=tid

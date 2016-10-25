@@ -13,32 +13,44 @@ const Test = require('../model/Test');
 router.get('/', function(req, res, next) {
     var dbConn;
     var testArray = [];
+    // if no userid in the session, user is not logged in or session expired.
+    if (!req.session.userid) {
+        res.redirect('login');
+        return;
+    }
     async.series([
-            function (callback) {
-                db.pool.getConnection(function (err, conn) {
-                    dbConn = conn;
-                    callback(err,null);
-                });
-            },
-            function (callback) {
-                getAllTests(dbConn, testArray ,callback);
-            }
-        ],
-        function (err, result ) {
-            if (err) {
-                dbConn.release();
-                console.log(error.message + "\n" + error.stack);
-                res.send('Encountered error in get(/tests),' + error.message + '<br>' + error.stack);
-            }
-            else {
-                dbConn.release();
-                res.render('tests', {tests: testArray,  message: undefined});
-            }
-        } );
+                function (callback) {
+                    db.pool.getConnection(function (err, conn) {
+                        dbConn = conn;
+                        callback(err, null);
+                    });
+                },
+                function (callback) {
+                    getAllTests(dbConn, testArray, callback);
+                }
+            ],
+            function (err, result) {
+                if (err) {
+                    dbConn.release();
+                    console.log(error.message + "\n" + error.stack);
+                    res.send('Encountered error in get(/tests),' + error.message + '<br>' + error.stack);
+                }
+                else {
+                    dbConn.release();
+                    res.render('tests', {tests: testArray, message: undefined});
+                }
+            });
+
+
 });
 
 // process POST on URI /tests to update the set of tests by deleting some
 router.post('/', function(req, res, next) {
+    // if no userid in the session, user is not logged in or session expired.
+    if (!req.session.userid) {
+        res.redirect('login');
+        return;
+    }
     var dbConn;
     var removeTest = req.body.removeTest;
     var myresult = {test : undefined};
@@ -72,6 +84,11 @@ router.post('/', function(req, res, next) {
 
 // process GET on URI /tests/new to return a test editing page
 router.get('/new', function(req, res, next) {
+    // if no userid in the session, user is not logged in or session expired.
+    if (!req.session.userid) {
+        res.redirect('../login');
+        return;
+    }
     var myresult = {test : undefined};
     myresult.test = new Test();
     res.render('test', {tid: undefined, test: myresult.test,  message: undefined});
@@ -79,6 +96,11 @@ router.get('/new', function(req, res, next) {
 
 // process GET on URI /tests/<id> to return a test editing page
 router.get('/:tid(\\d+)', function(req, res, next) {
+    // if no userid in the session, user is not logged in or session expired.
+    if (!req.session.userid) {
+        res.redirect('../login');
+        return;
+    }
     var tid = req.params.tid;
     var dbConn;
     var myresult = {test : undefined};
@@ -115,6 +137,11 @@ router.get('/:tid(\\d+)', function(req, res, next) {
 
 // process POST on URI /tests/<id> to update a test.
 router.post('/:tid', function(req, res, next) {
+    // if no userid in the session, user is not logged in or session expired.
+    if (!req.session.userid) {
+        res.redirect('../login');
+        return;
+    }
     try {
         var tid = req.params.tid;
         var dbConn;
@@ -185,6 +212,11 @@ router.post('/:tid', function(req, res, next) {
 // o  tid and qid:  Show a preview of the next question in the test that follows question <q> with appropriate links to editors
 //   If a question cannot be found for a test, it goes to the test editor.
 router.get('/preview', function(req, res, next) {
+    // if no userid in the session, user is not logged in or session expired.
+    if (!req.session.userid) {
+        res.redirect('../login');
+        return;
+    }
     var qid = req.query.qid;
     var tid = req.query.tid;
     var isLastQ = false;

@@ -34,6 +34,11 @@ var upload = multer({ storage : storage}).single('userPhoto');     */
 
 /* GET question listing. Will list all questions.  */
 router.get('/', function(req, res, next) {
+    // if no userid in the session, user is not logged in or session expired.
+    if (!req.session.userid) {
+        res.redirect('login');
+        return;
+    }
     var dbConn;
     var questionArray = [];
     var myresult = {questions : undefined};
@@ -63,6 +68,11 @@ router.get('/', function(req, res, next) {
 
 //  process a GET /questions/new request which returns an empty form for entering a new question.
 router.get('/new', function(req, res, next) {
+    // if no userid in the session, user is not logged in or session expired.
+    if (!req.session.userid) {
+        res.redirect('../login');
+        return;
+    }
     var dbConn;
     var myresult = {question: undefined};
     myresult.question = new Question();
@@ -72,6 +82,11 @@ router.get('/new', function(req, res, next) {
 
 // process GET on URI /questions/<id> to return a question editing page  or /questions/new for a new question editing page.
 router.get('/:qid(\\d+)', function(req, res, next) {
+    // if no userid in the session, user is not logged in or session expired.
+    if (!req.session.userid) {
+        res.redirect('../login');
+        return;
+    }
 // router.get('/:qid', function(req, res, next) {
     var qid = req.params.qid;
     var dbConn;
@@ -103,6 +118,11 @@ router.get('/:qid(\\d+)', function(req, res, next) {
 
 // process GET on URI /questions/<qid>/img  to return the image for the given question
 router.get('/:qid/img', function(req, res, next) {
+    // if no userid in the session, user is not logged in or session expired.
+    if (!req.session.userid) {
+        res.redirect('../../login');
+        return;
+    }
     var qid = req.params.qid;
     var dbconn;
     var imageData;
@@ -144,6 +164,11 @@ router.get('/:qid/img', function(req, res, next) {
 
 // process POST on URI /questions which deletes the questions in removeQuestion param.
 router.post('/', function(req, res, next) {
+    // if no userid in the session, user is not logged in or session expired.
+    if (!req.session.userid) {
+        res.redirect('login');
+        return;
+    }
     var dbConn;
     var removeQuestion = req.body.removeQuestion;  // If questions are being deleted from the list this will have value(s)
     if (!removeQuestion) {
@@ -189,6 +214,11 @@ router.post('/', function(req, res, next) {
 // if qid == 'new' this is saving a new question (without an id yet), so make qid undefined
 // so this can process it correctly.
 router.post('/:qid', upload.fields([{name: 'image', maxcount: 1}, {name: 'aChoiceImg', maxcount: 1}]), function (req,res,next) {
+    // if no userid in the session, user is not logged in or session expired.
+    if (!req.session.userid) {
+        res.redirect('../login');
+        return;
+    }
     var qid = req.params.qid;
     var removeImage = req.body.removeImage;
     if (qid == 'new')
@@ -230,6 +260,7 @@ router.post('/:qid', upload.fields([{name: 'image', maxcount: 1}, {name: 'aChoic
 });
 
 // An AJAX request sent by the test form to get the description of a question from its id.
+// a url like /questions/descr/10
 router.get('/descr/:qid', function(req,res,next) {
     var qid = req.params.qid;
     var dbConn;
@@ -262,6 +293,11 @@ router.get('/descr/:qid', function(req,res,next) {
 
 // process a /questions/preview?qid=<q> request
 router.get('/preview', function(req, res, next) {
+    // if no userid in the session, user is not logged in or session expired.
+    if (!req.session.userid) {
+        res.redirect('../login');
+        return;
+    }
     var qid = req.query.qid;
     var dbConn;
     var myresult = { question: undefined};

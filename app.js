@@ -7,11 +7,14 @@ var bodyParser = require('body-parser');
 var helpers = require('express-helpers')
 var multer = require('multer');
 var upload = multer({ dest: './uploads' });
-
+var expressSession = require('express-session');
 var routes = require('./routes/index');
 var questions = require('./routes/questions');
 var tests = require('./routes/tests');
-var login = require('./routes/login');
+var login = require('./routes/logins');
+
+const MAX_USER_IDLE_TIME_MS = 60 * 60 * 1000;  // 60 minutes
+// const MAX_USER_IDLE_TIME_MS = 5 * 1000;  // 5 seconds for testing
 
 
 var app = express();
@@ -29,6 +32,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+// these two support express-session sessions
+// saveUnitialized makes sure a new session is saved to the store
+// rolling: resets the timer countdown on each request.
+// maxAage:  set to 1 hour.
+//  resave: forces session to be saved even when unmodified.
+app.use(expressSession({resave: true, saveUninitialized: false, secret: 'M4thSpr1ng2016', rolling: true, resave:true, cookie: {maxAge: MAX_USER_IDLE_TIME_MS }}));
+
 
 app.use('/', routes);
 app.use('/tests', tests);
