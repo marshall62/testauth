@@ -32,6 +32,18 @@ To put it on rose go to /mnt/net/nodejs/testauth
 sudo git pull
 pm2 restart testauth
 
+If errors happen and need to debug on rose:
+
+cd to the testauth dir and run
+node bin/testauth
+
+Should now see it running without pm2.
+
+Note:  express-session is a module that needs to be installed directly on the server (not just read from
+the package.json).
+
+sudo npm install express-session
+
 
 
 How it's installed and running on Rose:
