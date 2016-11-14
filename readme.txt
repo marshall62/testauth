@@ -69,6 +69,8 @@ This will not stay up and running if there are crashes or reboots.
 
 Install the PM2 process manager (as in this doc  https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-centos-7)
 
+More complete documentation here: http://pm2.keymetrics.io/docs/usage/quick-start/
+
   sudo npm install pm2@latest -g
 
 Add testauth to PM2's process list:
