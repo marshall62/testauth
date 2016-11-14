@@ -2,8 +2,8 @@
 <html>
 <head>
     <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
-    <link href = "../stylesheets/bootstrap.min.css" rel = "stylesheet">
-
+    <link href = "<%= pageContext %>/static/stylesheets/bootstrap.min.css" rel = "stylesheet"/>
+    <!--<link rel='stylesheet' href='/stylesheets/style.css'/>-->
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 
@@ -12,12 +12,12 @@
     <script src = "https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
     <![endif]-->
     <!--<title>Edit Question <%= qid %></title>-->
-    <link rel='stylesheet' href='../stylesheets/style.css'/>
+
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src = "https://code.jquery.com/jquery.js"></script>
 
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src = "../js/bootstrap.min.js"></script>
+    <script src = "<%= pageContext %>/static/js/bootstrap.min.js"></script>
     <script type="application/javascript">
         function validateQuestion () {
             // TODO need to make sure multichoices don't have holes.
@@ -60,7 +60,7 @@
 
 <body>
 <!--  the cur URL is like /context/questions/45  and we want /context/tests -->
-<a href="../tests">View All Tests</a> &nbsp; &nbsp; <a href="../questions">View All Questions</a>
+<a href="<%= pageContext %>/tests">View All Tests</a> &nbsp; &nbsp; <a href="<%= pageContext %>/questions">View All Questions</a>
 <br><br>
 <!-- See for doc on view helpers https://github.com/tanema/express-helpers/wiki -->
 <form method="post" enctype="multipart/form-data" action="<%= qid %>" onsubmit="return validateQuestion()">

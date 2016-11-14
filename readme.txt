@@ -71,12 +71,15 @@ Install the PM2 process manager (as in this doc  https://www.digitalocean.com/co
 
   sudo npm install pm2@latest -g
 
-Add ww to PM2's process list:
+Add testauth to PM2's process list:
    pm2 start testauth
+   OR
+   pm2 start testauth -- -a /testauth  -- this allows passing the -a /testauth as a command line arg to testauth.bin
 Set up pm2 to restart if the system reboots
   sudo pm2 startup centos (for 6.8 centos which is what I have)
   sudo pm2 startup systemd (for centos 7 which I don't have  yet)
-
+   -- Note after reboot of rose I found that pm2 was not running the testauth process and that I needed to manually
+   -- start it and save it again.
   pm2 save  (to save these processes for restart on reboot)
 
   PM2 commands  (best seen when puTTY in with non-X terminal)

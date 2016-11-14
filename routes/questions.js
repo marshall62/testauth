@@ -6,6 +6,7 @@ const mysql = require('mysql');
 const router = express.Router();
 const fs = require("fs");
 const db = require('../db');
+const util = require('../util/util');
 const multer = require('multer');
 var limits = { fileSize: 100 * 1024 * 1024, files:1 };
 // const upload = multer({ dest: './uploads', limits: limits });
@@ -61,7 +62,7 @@ router.get('/', function(req, res, next) {
             }
             else {
                 dbConn.release();
-                res.render('questions', {questions: questionArray});
+                res.render('questions', {pageContext: util.pageContext(req), questions: questionArray});
             }
         } );
 });
@@ -77,7 +78,7 @@ router.get('/new', function(req, res, next) {
     var myresult = {question: undefined};
     myresult.question = new Question();
     myresult.question.setType(1); // a better default for editing a new question
-    res.render('question', {qid: undefined, qobj: myresult.question});
+    res.render('question', {pageContext: util.pageContext(req), qid: undefined, qobj: myresult.question});
 });
 
 // process GET on URI /questions/<id> to return a question editing page  or /questions/new for a new question editing page.
@@ -110,7 +111,7 @@ router.get('/:qid(\\d+)', function(req, res, next) {
             }
             else {
                 dbConn.release();
-                res.render('question', {qid: qid, qobj: myresult.question});
+                res.render('question', {pageContext: util.pageContext(req), qid: qid, qobj: myresult.question});
             }
         })  ;
 
@@ -321,7 +322,7 @@ router.get('/preview', function(req, res, next) {
             }
             else {
                 dbConn.release();
-                res.render('questionPreview', {qid: myresult.question.id, qobj: myresult.question, tid: undefined});
+                res.render('questionPreview', {pageContext: util.pageContext(req), qid: myresult.question.id, qobj: myresult.question, tid: undefined});
             }
         });
 

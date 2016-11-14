@@ -8,6 +8,25 @@ var app = require('../app');
 var debug = require('debug')('testauth:server');
 var http = require('http');
 
+// when running on the production server this app has to have a context like /testauth (so the URLs are like
+// http://rose.cs.umass.edu/testauth/login  .   On dev machine no context is necessary.
+// On the production machine this script is given an argument like:  -a /testauth
+// All URLs are coded
+// as absolute in the pages so we set the global.context to be the piece of the URL necessary for building something like:
+// http://localhost:3000/login  vs. http://rose.cs.umass.edu/testauth/login
+if (process.argv[2]=== '-a' ) {
+  if (process.argv[3]) {
+    global.context = process.argv[3];
+    console.log("Using context: [" + global.context + "]");
+  }
+  else console.log("Error! testauth script expecting context argument following -a");
+
+}
+else {
+  global.context = "";
+  console.log("Using context: [" + global.context + "]");
+}
+
 /**
  * Get port from environment and store in Express.
  */

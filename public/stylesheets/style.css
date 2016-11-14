@@ -4,5 +4,8 @@ body {
 }
 
 a {
-  color: #00B7FF;
+  color: #0010FF;
+  font-weight: normal;
+  font-size: medium;
+  font-style: normal;
 }

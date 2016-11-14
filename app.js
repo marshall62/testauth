@@ -20,7 +20,8 @@ const MAX_USER_IDLE_TIME_MS = 60 * 60 * 1000;  // 60 minutes
 var app = express();
 
 
-app.use(express.static('public'));
+// app.use(express.static('public'));
+app.use('/static', express.static(path.join(__dirname, 'public')))
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');

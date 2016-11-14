@@ -5,6 +5,7 @@ const express = require('express');
 const mysql = require('mysql');
 const router = express.Router();
 const db = require('../db');
+const util = require('../util/util');
 const async = require('async');
 var Question = require('../model/Question');
 const Test = require('../model/Test');
@@ -37,7 +38,7 @@ router.get('/', function(req, res, next) {
                 }
                 else {
                     dbConn.release();
-                    res.render('tests', {tests: testArray, message: undefined});
+                    res.render('tests', {pageContext: util.pageContext(req), tests: testArray, message: undefined});
                 }
             });
 
@@ -91,7 +92,7 @@ router.get('/new', function(req, res, next) {
     }
     var myresult = {test : undefined};
     myresult.test = new Test();
-    res.render('test', {tid: undefined, test: myresult.test,  message: undefined});
+    res.render('test', {pageContext: util.pageContext(req), tid: undefined, test: myresult.test,  message: undefined});
 } );
 
 // process GET on URI /tests/<id> to return a test editing page
@@ -128,7 +129,7 @@ router.get('/:tid(\\d+)', function(req, res, next) {
             }
             else {
                 dbConn.release();
-                res.render('test', {tid: tid, test: myresult.test,  message: undefined});
+                res.render('test', {pageContext: util.pageContext(req), tid: tid, test: myresult.test,  message: undefined});
             }
         })  ;
 
@@ -194,7 +195,7 @@ router.post('/:tid', function(req, res, next) {
                 }
                 else {
                     dbConn.release();
-                    res.render('test', {tid: myresult.test.id, test: myresult.test,  message: undefined});
+                    res.render('test', {pageContext: util.pageContext(req), tid: myresult.test.id, test: myresult.test,  message: undefined});
                 }
             });
 
@@ -269,11 +270,11 @@ router.get('/preview', function(req, res, next) {
                 dbConn.release();
 
                 if (isLastQ)
-                    res.render('test', {test: myresult.test, tid: tid,  message: undefined});
+                    res.render('test', {pageContext: util.pageContext(req), test: myresult.test, tid: tid,  message: undefined});
                 else if (myresult.test.questions.length == 0)
-                    res.render('test', {test: myresult.test, tid: tid, message: 'There are no questions in this test'});
+                    res.render('test', {pageContext: util.pageContext(req), test: myresult.test, tid: tid, message: 'There are no questions in this test'});
                 else
-                    res.render('questionPreview', {qid: myresult.qid, qobj: myresult.question, tid: tid});
+                    res.render('questionPreview', {pageContext: util.pageContext(req), qid: myresult.qid, qobj: myresult.question, tid: tid});
             }
         });
 

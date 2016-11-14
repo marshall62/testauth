@@ -8,8 +8,11 @@
 const express = require('express');
 const mysql = require('mysql');
 const router = express.Router();
-const db = require('../db');
 const async = require('async');
+const db = require('../db');
+const util = require('../util/util');
+
+
 
 
 // POST process submits of two fields: username and password as query string
@@ -44,7 +47,7 @@ router.post('/', function(req, res, next) {
                 res.redirect("tests");
             }
             else {
-                res.render('login', {message: 'User not found.  Try again.'});
+                res.render('login', {pageContext: util.pageContext(req), message: 'User not found.  Try again.'});
             }
         }
 
@@ -55,7 +58,7 @@ router.post('/', function(req, res, next) {
 
 // GET show the login page
 router.get('/', function(req, res, next) {
-    res.render('login', {message: undefined });
+    res.render('login', {pageContext: util.pageContext(req), message: undefined });
 
 
 });
@@ -82,5 +85,6 @@ function getUser (conn, user, pw, result , callback) {
     );
 
 }
+
 
 module.exports = router;

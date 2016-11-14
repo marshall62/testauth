@@ -1,11 +1,16 @@
 <html>
 <head>
-    <link rel='stylesheet' href='stylesheets/style.css'/>
     <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+
     <!-- Bootstrap -->
 
-    <link href = "stylesheets/bootstrap.min.css" rel = "stylesheet">
+    <link href = "<%= pageContext %>/static/stylesheets/bootstrap.min.css" rel = "stylesheet"/>
+    <!--<link href='/stylesheets/style.css' rel='stylesheet' />-->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src = "https://code.jquery.com/jquery.js"></script>
 
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src = "<%= pageContext %>/static/js/bootstrap.min.js"></script>
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 
@@ -16,16 +21,16 @@
 
   <script type="application/javascript">
       function addTest() {
-          document.location.href = "./tests/new";
+          document.location.href = "<%= pageContext %>/tests/new";
       }
   </script>
 </head>
 <body>
-<a href="./questions">View All Questions</a>
+<a href="<%= pageContext %>/questions">View All Questions</a>
 <br><br>
 Here are the Pre/Post tests
 
-<form action="./tests", method="post">
+<form action="<%= pageContext %>/tests", method="post">
 
 <table>
   <tr><td>Del</td> <td></td ><td><input type="button" name="newTest" onclick="addTest()" value="+"></td> <td></td></tr>
@@ -33,7 +38,7 @@ Here are the Pre/Post tests
   <tr>
       <td> <%- checkbox_tag('removeTest',{"value": test.id}) %></td>
       <td><%= test.id %></td>
-      <td> &nbsp;<a href="./tests/<%= test.id%>"><%= test.name %> </a>  </td>
+      <td> &nbsp;<a href="<%= pageContext %>/tests/<%= test.id%>"><%= test.name %> </a>  </td>
       <td><% if (!test.isActive) {%> inactive <% } %> </td>
   </tr>
   <% }); %>
@@ -41,11 +46,7 @@ Here are the Pre/Post tests
   <input type="submit" name="submit" value="Save">
 </form>
 
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-<script src = "https://code.jquery.com/jquery.js"></script>
 
-<!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src = "js/bootstrap.min.js"></script>
 
 </body>
 </html>
