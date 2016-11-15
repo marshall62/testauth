@@ -4,7 +4,7 @@ var fs = require("fs");
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.redirect('login');
+  res.redirect('./login');
 });
 
 router.post('/file_upload', function (req, res) {
