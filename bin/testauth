@@ -10,21 +10,41 @@ var http = require('http');
 
 // when running on the production server this app has to have a context like /testauth (so the URLs are like
 // http://rose.cs.umass.edu/testauth/login  .   On dev machine no context is necessary.
-// On the production machine this script is given an argument like:  -a /testauth
+// On the production machine this script is given an argument like:  -c /testauth
 // All URLs are coded
 // as absolute in the pages so we set the global.context to be the piece of the URL necessary for building something like:
 // http://localhost:3000/login  vs. http://rose.cs.umass.edu/testauth/login
-if (process.argv[2]=== '-a' ) {
-  if (process.argv[3]) {
-    global.context = process.argv[3];
+if (process.argv.indexOf('-c') != -1 ) {
+  if (process.argv[process.argv.indexOf('-c')+1]) {
+    global.context = process.argv[process.argv.indexOf('-c')+1];
     console.log("Using context: [" + global.context + "]");
   }
-  else console.log("Error! testauth script expecting context argument following -a");
+  else console.log("Error! testauth script expecting context argument following -c");
 
 }
 else {
   global.context = "";
   console.log("Using context: [" + global.context + "]");
+}
+
+// Here's another program argument that tells the app what the host is.  Because Apache forwards to this program using
+// a proxy node doesn't get the URL as it is in the user's browser.  Instead it is now localhost:3000 which causes
+// the other URLs in the page to get generated with the incorrect host.   So we set a global variable global.host
+// to be the value of the -h argument (e.g. -h rose.cs.umass.edu)
+if (process.argv.indexOf('-h') != -1 ) {
+  if (process.argv[process.argv.indexOf('-h')+1]) {
+    global.host = process.argv[process.argv.indexOf('-h')+1]
+    console.log("Using host: [" + global.host + "]");
+  }
+  else {
+    global.host = undefined;
+    console.log("Error! testauth script expecting host argument following -h");
+  }
+
+}
+else {
+  global.host = undefined;
+  console.log("Using host: [" + global.host + "]");
 }
 
 /**

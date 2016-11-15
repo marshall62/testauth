@@ -1,11 +1,15 @@
 
 function getFullURL (req) {
-    var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+    // if a global.host var is set use it as the host, else use the request host
+    var host = global.host ? global.host : req.get('host');
+    var fullUrl = req.protocol + '://' + host + req.originalUrl;
     return fullUrl;
 }
 
 function getPageContext (req) {
-    var fullUrl = req.protocol + '://' + req.get('host') + global.context;
+    // if a global.host var is set use it as the host, else use the request host
+    var host = global.host ? global.host : req.get('host');
+    var fullUrl = req.protocol + '://' + host + global.context;
     return fullUrl;
 }
 
