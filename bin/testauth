@@ -27,25 +27,6 @@ else {
   console.log("Using context: [" + global.context + "]");
 }
 
-// Here's another program argument that tells the app what the host is.  Because Apache forwards to this program using
-// a proxy node doesn't get the URL as it is in the user's browser.  Instead it is now localhost:3000 which causes
-// the other URLs in the page to get generated with the incorrect host.   So we set a global variable global.host
-// to be the value of the -h argument (e.g. -h rose.cs.umass.edu)
-if (process.argv.indexOf('-h') != -1 ) {
-  if (process.argv[process.argv.indexOf('-h')+1]) {
-    global.host = process.argv[process.argv.indexOf('-h')+1]
-    console.log("Using host: [" + global.host + "]");
-  }
-  else {
-    global.host = undefined;
-    console.log("Error! testauth script expecting host argument following -h");
-  }
-
-}
-else {
-  global.host = undefined;
-  console.log("Using host: [" + global.host + "]");
-}
 
 /**
  * Get port from environment and store in Express.

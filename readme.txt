@@ -51,6 +51,7 @@ How it's installed and running on Rose:
 1.  Edit the httpd.conf file and make sure the modules for mod_proxy_http.so and mod_proxy.so are loaded
 2.  Set up a proxy as in 0rose.conf for testauth that forwards requests to port 3000 which is where the node express app is running.
        <VirtualHost *:80>
+        ProxyPreserveHost On
        <Location /testauth>
         ProxyPass http://localhost:3000
         ProxyPassReverse http://localhost:3000
@@ -76,12 +77,11 @@ More complete documentation here: http://pm2.keymetrics.io/docs/usage/quick-star
 Add testauth to PM2's process list:
    pm2 start testauth
    OR
-   pm2 start testauth -- -c /testauth -h rose.cs.umass.edu -- The necessary args to pass in to testauth.bin
+   pm2 start testauth -- -c /testauth  // The necessary args to pass in to testauth.bin
 
 In the above command line we need to pass args so that URLs are constructed correctly on rose.  Apache forwards
-to node when requests come in on the /testauth path.  But the proxy is sent the URL as localhost:/3000/testauth/....
-rather than rose.cs.umass.edu/testauth which causes the URLs to fail.   So we pass the correct host and context
-to the testauth program so that it knows them rather than trying to take apart URLs.
+to node when requests come in on the /testauth path.  So we pass the context
+to the testauth program so that it knows it rather than trying to take apart URLs.
 
 Set up pm2 to restart if the system reboots
   sudo pm2 startup centos (for 6.8 centos which is what I have)
