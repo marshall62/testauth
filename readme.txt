@@ -76,7 +76,13 @@ More complete documentation here: http://pm2.keymetrics.io/docs/usage/quick-star
 Add testauth to PM2's process list:
    pm2 start testauth
    OR
-   pm2 start testauth -- -a /testauth  -- this allows passing the -a /testauth as a command line arg to testauth.bin
+   pm2 start testauth -- -c /testauth -h rose.cs.umass.edu -- The necessary args to pass in to testauth.bin
+
+In the above command line we need to pass args so that URLs are constructed correctly on rose.  Apache forwards
+to node when requests come in on the /testauth path.  But the proxy is sent the URL as localhost:/3000/testauth/....
+rather than rose.cs.umass.edu/testauth which causes the URLs to fail.   So we pass the correct host and context
+to the testauth program so that it knows them rather than trying to take apart URLs.
+
 Set up pm2 to restart if the system reboots
   sudo pm2 startup centos (for 6.8 centos which is what I have)
   sudo pm2 startup systemd (for centos 7 which I don't have  yet)
