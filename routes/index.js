@@ -1,10 +1,12 @@
 var express = require('express');
 var router = express.Router();
 var fs = require("fs");
+var util = require("../util/util")
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.redirect('./login');
+  var url =  util.pageContext(req) + '/login';
+  res.redirect(url);
 });
 
 router.post('/file_upload', function (req, res) {

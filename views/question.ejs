@@ -134,44 +134,45 @@ Warn Student to answer time:
 Multiple choices (select the one that is the correct answer):
     <table>
     <% if (qobj.answer == 'a') { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','a', {checked: true}) %> </td><td> Choice A: </td> <td> <%- text_field_tag('aAns',qobj.aAns) %> </td></tr>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','a', {checked: true}) %> </td><td> Choice A: </td> <td> <%- text_field_tag('aAns',{value:qobj.aAns, size:60}) %> </td></tr>
     <% } else { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','a') %> </td><td> Choice A: </td> <td> <%- text_field_tag('aAns',qobj.aAns) %>  </td></tr>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','a') %> </td><td> Choice A: </td> <td> <%- text_field_tag('aAns',{value:qobj.aAns, size:60}) %>  </td></tr>
         <br/>
     <% } %>
     <% if (qobj.bAns && qobj.answer == 'b') { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','b', {checked: true}) %> </td><td> Choice B: </td> <td> <%- text_field_tag('bAns',qobj.bAns) %> </td></tr>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','b', {checked: true}) %> </td><td> Choice B: </td> <td> <%- text_field_tag('bAns',{value:qobj.bAns, size:60}) %> </td></tr>
         <% } else  { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','b') %> </td><td> Choice B: </td> <td> <%- text_field_tag('bAns',qobj.bAns) %>  </td></tr>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','b') %> </td><td> Choice B: </td> <td> <%- text_field_tag('bAns',{value:qobj.bAns, size:60}) %>  </td></tr>
         <br/>
         <% } %>
     <% if (qobj.cAns && qobj.answer == 'c') { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','c', {checked: true}) %> </td><td> Choice C: </td> <td> <%- text_field_tag('cAns',qobj.cAns) %> </td></tr>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','c', {checked: true}) %> </td><td> Choice C: </td> <td> <%- text_field_tag('cAns',{value:qobj.cAns, size:60}) %> </td></tr>
         <% } else  { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','c') %> </td><td> Choice C: </td> <td> <%- text_field_tag('cAns',qobj.cAns) %>  </td></tr>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','c') %> </td><td> Choice C: </td> <td> <%- text_field_tag('cAns',{value:qobj.cAns, size:60}) %>  </td></tr>
         <br/>
         <% } %>
     <% if (qobj.dAns && qobj.answer == 'd') { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','d', {checked: true}) %> </td><td> Choice D: </td> <td> <%- text_field_tag('dAns',qobj.dAns) %> </td></tr>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','d', {checked: true}) %> </td><td> Choice D: </td> <td> <%- text_field_tag('dAns',{value:qobj.dAns, size:60}) %> </td></tr>
         <% } else  { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','d') %> </td><td> Choice D: </td> <td> <%- text_field_tag('dAns',qobj.dAns) %>  </td></tr>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','d') %> </td><td> Choice D: </td> <td> <%- text_field_tag('dAns',{value:qobj.dAns, size:60}) %>  </td></tr>
         <br/>
         <% } %>
 
     <% if (qobj.eAns && qobj.answer == 'e') { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','e', {checked: true}) %> </td><td> Choice E: </td> <td> <%- text_field_tag('eAns',qobj.eAns) %> </td></tr>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','e', {checked: true}) %> </td><td> Choice E: </td> <td> <%- text_field_tag('eAns',{value:qobj.eAns, size:60}) %> </td></tr>
         <% } else  { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','e') %> </td><td> Choice E: </td> <td> <%- text_field_tag('eAns',qobj.eAns) %>  </td></tr>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','e') %> </td><td> Choice E: </td> <td> <%- text_field_tag('eAns',{value:qobj.eAns, size:60}) %>  </td></tr>
         <br/>
         <% } %>
 
-    <% if (!qobj.answer) { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','noneCorrect', {'checked': true}) %> </td><td> There is no correct answer </td></tr>
-    <% } else { %>
-        <tr><td><%- radio_tag('multiChoiceCorrectAnswer','noneCorrect') %> </td><td>There is no correct answer  </td></tr>
-    <% } %>
-        </table>
 
+        </table>
+        <br>
+        <% if (!qobj.answer) { %>
+        <%- radio_tag('multiChoiceCorrectAnswer','noneCorrect', {'checked': true}) %> There is no correct answer
+        <% } else { %>
+        <%- radio_tag('multiChoiceCorrectAnswer','noneCorrect') %> There is no correct answer
+        <% } %>
 <br/>
     </div>
 
