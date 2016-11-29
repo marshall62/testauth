@@ -48,18 +48,18 @@
         <%- text_area_tag('answer','') %>
     <% } else { %>
     <table>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','a') %> </td> <td> <%= qobj.aAns %>  </td></tr>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','a') %> </td> <td> <%- qobj.aAns %>  </td></tr>
         <% if (qobj.bAns) { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','b') %> </td> <td> <%= qobj.bAns %>  </td></tr>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','b') %> </td> <td> <%- qobj.bAns %>  </td></tr>
         <% } %>
         <% if (qobj.cAns) { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','c') %> </td> <td> <%= qobj.cAns %>  </td></tr>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','c') %> </td> <td> <%- qobj.cAns %>  </td></tr>
         <% } %>
         <% if (qobj.dAns) { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','d') %> </td> <td> <%= qobj.dAns %>  </td></tr>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','d') %> </td> <td> <%- qobj.dAns %>  </td></tr>
         <% } %>
         <% if (qobj.eAns) { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','e') %> </td> <td> <%= qobj.eAns %>  </td></tr>
+        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','e') %> </td> <td> <%- qobj.eAns %>  </td></tr>
         <% } %>
 
 
