@@ -24,6 +24,14 @@ Test.prototype.initFromRow = function (row) {
     
 }
 
+Test.prototype.getAllQuestions = function() {
+    return this.questions;
+}
+
+Test.prototype.getAllQuestionIds = function() {
+    return this.questionIds;
+}
+
 Test.prototype.setQuestionIds = function (ids) {
     this.questionIds = ids;
 }

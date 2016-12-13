@@ -23,6 +23,16 @@
       function addTest() {
           document.location.href = "<%= pageContext %>/tests/new";
       }
+
+      function doSave () {
+        document.getElementById("myform").submit();
+        }
+
+      $(document).ready(function () {
+      $("#addTestButton").click(addTest);
+      $("#saveButton").click(doSave);
+  });
+
   </script>
 </head>
 <body>
@@ -30,10 +40,10 @@
 <br><br>
 Here are the Pre/Post tests
 
-<form action="<%= pageContext %>/tests", method="post">
+<form id="myform" action="<%= pageContext %>/tests", method="post">
 
 <table>
-  <tr><td>Del</td> <td></td ><td><input type="button" name="newTest" onclick="addTest()" value="+"></td> <td></td></tr>
+  <tr><td>Del</td> <td></td ><td><a id="addTestButton" class='btn btn-delete btn-primary btn-xs'>Add Test</a></td> <td></td></tr>
   <% tests.forEach(function (test) { %>
   <tr>
       <td> <%- checkbox_tag('removeTest',{"value": test.id}) %></td>
@@ -43,7 +53,7 @@ Here are the Pre/Post tests
   </tr>
   <% }); %>
 </table>
-  <input type="submit" name="submit" value="Save">
+    <a id="saveButton" class='btn btn-delete btn-primary btn-xs'>Save</a>
 </form>
 
 

@@ -136,6 +136,161 @@ router.get('/:tid(\\d+)', function(req, res, next) {
 });
 
 
+// process GET on URI /tests/<id>/allQuestions to get all the qids in the test
+router.get('/:tid/allQuestions', function(req, res, next) {
+    // if no userid in the session, user is not logged in or session expired.
+    if (!req.session.userid) {
+        res.redirect('../login');
+        return;
+    }
+    var tid = req.params.tid;
+    var dbConn;
+    var myresult = {test : undefined};
+    async.series([
+            function (callback) {
+                db.pool.getConnection(function (err, conn) {
+                    dbConn = conn;
+                    callback(err,null);
+                });
+            },
+            function (callback) {
+                if (tid != 'new')
+                    getTest(dbConn, tid, myresult,callback, next);
+                else {
+                    myresult.test = new Test();
+                    callback(null,null);
+                }
+            }
+        ],
+        function (err, result) {
+            if (err) {
+                dbConn.release();
+                console.log(err.message + "\n" + err.stack);
+                res.send('Encountered error in get(/tests/:tid/allQuestions),' + err.message + '<br>' + error.stack);
+            }
+            else {
+                dbConn.release();
+                res.json({qids: myresult.test.getAllQuestionIds()});
+            }
+        })  ;
+
+});
+
+// post a list of qids to the test.  Return nothing of significance.
+router.post ('/:tid/addQuestions', function (req,res,next) {
+    var qids = req.body.ids;
+    var tid = req.params.tid;
+    var myresult = {test: undefined};
+    var dbConn;
+    async.series([
+            function (callback) {
+                db.pool.getConnection(function (err, conn) {
+                    dbConn = conn;
+                    callback(err, null);
+                });
+            },
+            function (callback) {
+                getTest(dbConn, tid, myresult, callback, next);
+            },
+            function (callback) {
+                insertQuestionsInTest(dbConn,myresult.test,qids,true,callback,next);
+            }
+        ],
+
+
+        function (err, result) {
+            if (err) {
+                dbConn.release();
+                console.log(err.message + "\n" + err.stack);
+                res.send('Encountered error in post(/tests/:tid/addQuestions),' + err.message + '<br>' + err.stack);
+            }
+            else {
+                dbConn.release();
+                res.json({tid: tid});
+                // res.status(200);
+            }
+        });
+});
+
+// Posts a list of question ids to the test and sets the new order of questions to this list.
+router.post ('/:tid/questionOrder/', function (req,res,next) {
+    var qids = req.body.ids;
+    var tid =  req.params.tid;
+    var myresult = {test: undefined};
+    console.log(qids);
+    var dbConn;
+    async.series([
+        function (callback) {
+            db.pool.getConnection(function (err, conn) {
+                dbConn = conn;
+                callback(err, null);
+            });
+        },
+        function(callback) {
+            getTest(dbConn,tid,myresult,callback,next);
+        } ,
+        function (callback) {
+            // removes the questions and re-adds them
+            setTestQuestions(dbConn,myresult,qids,callback,next);
+        }],
+        function (err, result) {
+            if (err) {
+                dbConn.release();
+                console.log(err.message + "\n" + err.stack);
+                res.send('Encountered error in get(/tests/:tid/questionOrder),' + err.message + '<br>' + err.stack);
+            }
+            else {
+                dbConn.release();
+                res.json({tid: tid});
+                // res.status(200);
+            }
+        })  ;
+});
+
+
+
+// POST.  Remove a question from the test's list of questions.
+router.post('/:tid/removeQuestion/:qid', function (req, res, next) {
+    var dbConn;
+    var tid = req.params.tid;
+    var qid = [req.params.qid];   // make an array of one question
+    var myresult = {test: undefined};
+    async.series([
+        function (callback) {
+            db.pool.getConnection(function (err, conn) {
+                dbConn = conn;
+                callback(err, null);
+            });
+        },
+        function (callback) {
+            getTest(dbConn,tid,myresult,callback,next);
+        } ,
+        // remove the question from the test, then remove all questions from the map in the db
+        function (callback) {
+            myresult.test.removeQuestions(qid);
+            removeAllTestQuestions(dbConn,myresult.test,callback);
+            // removeTestQuestion(dbConn,tid,qid,callback) ;
+
+        }, // insert all questions into the map
+        function (callback) {
+                insertQuestionsInTest(dbConn, myresult.test, myresult.test.getAllQuestionIds(), false, callback, next);
+            }],
+        function (err, result) {
+            if (err) {
+                dbConn.release();
+                console.log(err.message + "\n" + err.stack);
+                res.send('Encountered error in get(/tests/:tid/removeQuestion/:qid),' + err.message + '<br>' + error.stack);
+            }
+            else {
+                dbConn.release();
+                res.json({tid: tid, qid: qid});
+                // res.status(200);
+            }
+        })  ;
+    }
+);
+
+
 // process POST on URI /tests/<id> to update a test.
 router.post('/:tid', function(req, res, next) {
     // if no userid in the session, user is not logged in or session expired.
@@ -147,11 +302,7 @@ router.post('/:tid', function(req, res, next) {
         var tid = req.params.tid;
         var dbConn;
         var myresult = {test: undefined};
-        var qidsToRemove = req.body.removeQuestion;  // will be an array if more than one, otherwise just a string
         var questionId = req.body.questionIds;  // the ids in order
-        var dbConn;
-        var myresult = {test: undefined};
-        qidsToRemove = (typeof(qidsToRemove) == 'string') ? [qidsToRemove] : qidsToRemove;
         questionId = (typeof(questionId) == 'string') ? [questionId] : questionId;
         async.series([
                 function (callback) {
@@ -165,13 +316,14 @@ router.post('/:tid', function(req, res, next) {
                     if (tid != 'new')
                         getTest(dbConn, tid, myresult, callback, next);
                     else callback(null,null);
+
                 },
                 // write changes to the test in the db
                 function (callback) {
                     if (tid != 'new') {
                         myresult.test.name = req.body.name;
                         myresult.test.isActive = req.body.isActive ? 1 : 0;
-                        updateTest(dbConn, myresult, qidsToRemove, questionId, callback, next);
+                        updateTest(dbConn, myresult, questionId, callback, next);
                     }
                     else {
                         try {
@@ -263,8 +415,8 @@ router.get('/preview', function(req, res, next) {
         function (err, result) {
             if (err) {
                 dbConn.release();
-                console.log(error.message + "\n" + error.stack);
-                res.send('Encountered error in get(/tests/preview),' + error.message + '<br>' + error.stack);
+                console.log(err.message + "\n" + err.stack);
+                res.send('Encountered error in get(/tests/preview),' + err.message + '<br>' + err.stack);
             }
             else {
                 dbConn.release();
@@ -315,21 +467,26 @@ function createNewTest (conn, req, myresult, questionIds, cb, next) {
     var test = new Test();
     test.initFromRequest(req);
     myresult.test = test;
-    if (questionIds)
+    if (questionIds) {
         test.setQuestionIds(questionIds);
+    }
     async.series([
-        function (callback) {
-            conn.query("insert into preposttest (name) values (?)", [test.name],
-                function (error, result) {
-                    test.id = result.insertId;  // if the insert fails the test.id will be corrupt.
-                    // Callback the toplevel series to let it know this is done
-                    callback(error, test);
-                });
-        },
-        // insert all questions into the map
-        function (callback) {
-            insertQuestionsInTest(conn, test, null, callback, next);
-        }], cb);
+                function (callback) {
+                    conn.query("insert into preposttest (name) values (?)", [test.name],
+                        function (error, result) {
+                            test.id = result.insertId;  // if the insert fails the test.id will be corrupt.
+                            // Callback the toplevel series to let it know this is done
+                            callback(error, test);
+                        });
+                },
+                // insert all questions into the map
+                function (callback) {
+                    if (questionIds)
+                        insertQuestionsInTest(conn, test, null, false, callback, next);
+                    else
+                        callback(null,null);
+                }],
+            cb);
 
 }
 
@@ -377,27 +534,34 @@ function getTest (conn, tid, result , callback, next) {
 
 }
 
-function updateTest(dbConn, myresult, qidsToRemove, questionIds, cb, next) {
-    // the idea here (somewhat flawed if there is a crash during this operation) is to correctly modify the test object by deleting and inserting
-    // question ids from the list of ids it maintains.  Following this we then remove all entries
-    // in the prepostproblemtestmap table for this test.  We then insert entries back into the table
-    // according to what is in the test object.
+// Removes the questions from the test->question map and then sets it to have the new ones.
+function setTestQuestions (dbConn, myresult, qids, cb, next) {
+    async.series([
+        // clear the map that puts questions into a test
+        function (callback) {
+            removeAllTestQuestions(dbConn, myresult.test, callback);
+        },
+        // insert all questions into the map
+        function (callback) {
+            insertQuestionsInTest(dbConn, myresult.test, qids, false, callback, next);
+        }],
+        function (err, result) {
+            cb(err, result);
+        });
+
+}
+
+function updateTest(dbConn, myresult, questionId, cb, next) {
+
     try {
         var test = myresult.test;
-        test.removeQuestions(qidsToRemove);  // remove question objects and ids from the test
         // add new ids into the test
-        if (questionIds) {
-            test.setQuestionIds(questionIds);
+        test.addQuestion(questionId);
 
-        }
         async.series([
-                // clear the map that puts questions into a test
-                function (callback) {
-                    removeAllTestQuestions(dbConn, myresult.test, callback);
-                },
                 // insert all questions into the map
                 function (callback) {
-                    insertQuestionsInTest(dbConn, test, qidsToRemove, callback, next);
+                    addQuestionToTest(dbConn, test, questionId, callback);
                 },
                 // update other fields of the test
                 function (callback) {
@@ -412,19 +576,28 @@ function updateTest(dbConn, myresult, qidsToRemove, questionIds, cb, next) {
     }
 }
 
+// a single question has been added to the test.  It will be LAST in the test's question list.
+// Now we add it to the map table.
+function addQuestionToTest (conn, test, qid, cb) {
+    var seqPos=test.getAllQuestions().length-1; // sequence positions stored in db are zero-based
+    conn.query("insert into prepostproblemtestmap (probId, testId, position) values (?,?,?)",
+        [qid, test.id, seqPos], cb);
+
+}
+
 // Add the question ids that are in the test into the map table
-function insertQuestionsInTest (conn, test, qidsToRemove, cb, next) {
+function insertQuestionsInTest(conn, test, qids, addAtEnd, cb, next) {
     var pairs = [];
     var index = 0;
+    if (addAtEnd)
+        index = test.getAllQuestions().length;
     try {
+        if (! qids)
+            cb(null,null);
+
         // create an array of [position, id] pairs
-        for (var i = 0; i < test.questionIds.length; i++) {
-            var found = -1;
-            if (qidsToRemove)
-                found = qidsToRemove.indexOf(test.questionIds[i]);
-            if (found == -1) {
-                pairs.push([index++, test.questionIds[i]]);
-            }
+        for (var i = 0; i < qids.length; i++) {
+            pairs.push([i+index, qids[i]]);
         }
         // do the asynchronous task over each pair in the array.
         async.forEach(pairs,
@@ -437,7 +610,9 @@ function insertQuestionsInTest (conn, test, qidsToRemove, cb, next) {
     }
 }
 
-
+function removeTestQuestion (conn, tid, qid, callback) {
+    conn.query("delete from prepostproblemtestmap where testId=? and probId=?", [tid,qid], callback);
+}
 
 // clear out the map for this test
 function removeAllTestQuestions (conn, test, callback) {

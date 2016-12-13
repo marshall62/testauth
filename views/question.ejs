@@ -1,39 +1,46 @@
-<!DOCTYPE html>
 <html>
 <head>
-    <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
-    <link href = "<%= pageContext %>/static/stylesheets/bootstrap.min.css" rel = "stylesheet"/>
+    <meta name="viewport" content="width = device-width, initial-scale = 1.0">
+    <link href="<%= pageContext %>/static/stylesheets/bootstrap.min.css" rel="stylesheet"/>
     <!--<link rel='stylesheet' href='/stylesheets/style.css'/>-->
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 
     <!--[if lt IE 9]>
-    <script src = "https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-    <script src = "https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
     <![endif]-->
     <!--<title>Edit Question <%= qid %></title>-->
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src = "https://code.jquery.com/jquery.js"></script>
+    <script src="https://code.jquery.com/jquery.js"></script>
 
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src = "<%= pageContext %>/static/js/bootstrap.min.js"></script>
+    <script src="<%= pageContext %>/static/js/bootstrap.min.js"></script>
     <script type="application/javascript">
-        function validateQuestion () {
+
+        function validateQuestion() {
             // TODO need to make sure multichoices don't have holes.
             return true;
         }
 
-        function fetchQuestion (qid) {
-            document.location.href =  qid;
+        function saveQ() {
+            $("#myform").submit();
         }
 
-        // Will go to the URL http.../questions/preview?qid=qid
-        function previewQuestion (qid) {
+        function fetchQuestion(qid) {
+            if (qid)
+                document.location.href = qid;
+            else
+                document.location.href = 'new';
+        }
+
+        // Will go to the URL http  ../questions/preview? qid = qid
+        function previewQuestion(qid) {
             document.location.href = "preview?qid=" + qid;
         }
 
-        function changeType () {
+        function changeType() {
             var sel = document.getElementById("typeSelector");
 //            Will be one of: multiChoice, shortAnswer, longAnswer
             var strUser = sel.options[sel.selectedIndex].value;
@@ -45,7 +52,7 @@
             else if (strUser == 'shortAnswer') {
                 document.getElementById("correctAnswer").style.display = "block";
                 var e = document.getElementById('multiChoices');
-                e.style.display = 'none' ;
+                e.style.display = 'none';
             }
             else if (strUser == 'longAnswer') {
                 document.getElementById("correctAnswer").style.display = "block";
@@ -60,135 +67,193 @@
 
 <body>
 <!--  the cur URL is like /context/questions/45  and we want /context/tests -->
-<a href="<%= pageContext %>/tests">View All Tests</a> &nbsp; &nbsp; <a href="<%= pageContext %>/questions">View All Questions</a>
-<br><br>
+<a href="<%= pageContext %>/tests">View All Tests</a>
+&nbsp; &nbsp;
+<a href="<%= pageContext %>/questions">View All Questions</a>
+<br>
+<br>
 <!-- See for doc on view helpers https://github.com/tanema/express-helpers/wiki -->
-<form method="post" enctype="multipart/form-data" action="<%= qid %>" onsubmit="return validateQuestion()">
+<form id="myform" method="post" enctype="multipart/form-data" action="<%= qid %>"
+      onsubmit="return validateQuestion()">
 
-Question ID:<%= qid %>
-<br>
+    <!-- if this page is built with a testId, then send it in as a hidden input when the form is
+     submitted. -->
+    <% if (tid) { %>
+    <input type="hidden" name="testId" value="<%= tid %>"/>
+    <% } %>
+
+    Question ID:<%= qid %>
+    <br>
 
 
-Name: <%- text_field_tag('name',qobj.name) %>
-<br>
+    Name: <%- text_field_tag('name', qobj.name) %>
+    <br>
 
 
-
-Type: <select id="typeSelector" onchange="changeType();" value='<%- qobj.type %>' id='type' name='type' >
-    <% if (qobj.isMultiChoice()) { %>
-        <option value='multiChoice' selected='selected' >Multiple Choice</option>
-    <% } else { %>
+    Type:
+    <select id="typeSelector" onchange="changeType();" value='<%- qobj.type %>' id='type'
+            name='type'>
+        <% if (qobj.isMultiChoice()) { %>
+        <option value='multiChoice' selected='selected'>Multiple Choice</option>
+        <% } else { %>
         <option value='multiChoice'>Multiple Choice</option>
-    <% } %>
-    <% if (qobj.isShortAnswer()) { %>
-    <option value='shortAnswer' selected='selected' >Short Answer</option>
-    <% } else { %>
-    <option value='shortAnswer'>Short Answer</option>
-    <% } %>
-    <% if (qobj.isLongAnswer()) { %>
-    <option value='longAnswer' selected='selected' >Text Answer</option>
-    <% } else { %>
-    <option value='longAnswer'>Text Answer</option>
-    <% } %>
+        <% } %>
+        <% if (qobj.isShortAnswer()) { %>
+        <option value='shortAnswer' selected='selected'>Short Answer</option>
+        <% } else { %>
+        <option value='shortAnswer'>Short Answer</option>
+        <% } %>
+        <% if (qobj.isLongAnswer()) { %>
+        <option value='longAnswer' selected='selected'>Text Answer</option>
+        <% } else { %>
+        <option value='longAnswer'>Text Answer</option>
+        <% } %>
 
-</select>
+    </select>
     <br/>
 
 
-
-Hover Text: <%- text_field_tag('hoverText',qobj.hoverText) %>
-<br>
-
-<% if (qobj.isShortAnswer()  ) { %>
-   <div id="correctAnswer"> Correct Answer: <%- text_field_tag('answer', qobj.answer) %>  </div>
-<% } else { %>
-    <div id="correctAnswer" style="display:none"> Correct Answer: <%- text_field_tag('answer', qobj.answer) %>  </div>
-<% } %>
-
-<br/>
-
-Image file: <%- file_field_tag("image",{"value":5}) %> <br/>
-<% if (qobj.image) { %>
-   <img src="<%= qid %>/img">
+    Hover Text: <%- text_field_tag('hoverText', qobj.hoverText) %>
     <br>
-    <%- checkbox_tag('removeImage', {"value": "remove"}) %> Remove the image from this question
-    <br><br>
-<% } %>
-Description: <br/>
-<%- text_area_tag('descr',qobj.descr) %>
-<br/>
 
-
-Warn Student to answer time:
-    <!--<%- text_field_tag('warnTime', qobj.warnTime) %>-->
-    <%- select_tag("warnTime",[{"value":30,"text":"30 secs"},{"value":60,"text":"1 min"},
-    {"value":"120","text":"2 min"}, {"value":"180","text":"3 min"}, {"value":"300","text":"5 min"},
-    {"value":"unlimited","text":"No time limit"}],{"value": qobj.warnTime }) %>
-<br/> <br/>
-
-<% if (qobj.isMultiChoice()) { %>
-    <div id="multiChoices" >
-<% } else { %>
-    <div id="multiChoices" style="display:none">
-<% } %>
-Multiple choices (select the one that is the correct answer):
-    <table>
-    <% if (qobj.answer == 'a') { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','a', {checked: true}) %> </td><td> Choice A: </td> <td> <%- text_field_tag('aAns',{value:qobj.aAns, size:60}) %> </td></tr>
+    <% if (qobj.isShortAnswer()  ) { %>
+    <div id="correctAnswer">Correct
+        Answer: <%- text_field_tag('answer', qobj.answer) %>  </div>
     <% } else { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','a') %> </td><td> Choice A: </td> <td> <%- text_field_tag('aAns',{value:qobj.aAns, size:60}) %>  </td></tr>
-        <br/>
+    <div id="correctAnswer" style="display:none">Correct
+        Answer: <%- text_field_tag('answer', qobj.answer) %>  </div>
     <% } %>
-    <% if (qobj.bAns && qobj.answer == 'b') { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','b', {checked: true}) %> </td><td> Choice B: </td> <td> <%- text_field_tag('bAns',{value:qobj.bAns, size:60}) %> </td></tr>
-        <% } else  { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','b') %> </td><td> Choice B: </td> <td> <%- text_field_tag('bAns',{value:qobj.bAns, size:60}) %>  </td></tr>
-        <br/>
-        <% } %>
-    <% if (qobj.cAns && qobj.answer == 'c') { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','c', {checked: true}) %> </td><td> Choice C: </td> <td> <%- text_field_tag('cAns',{value:qobj.cAns, size:60}) %> </td></tr>
-        <% } else  { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','c') %> </td><td> Choice C: </td> <td> <%- text_field_tag('cAns',{value:qobj.cAns, size:60}) %>  </td></tr>
-        <br/>
-        <% } %>
-    <% if (qobj.dAns && qobj.answer == 'd') { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','d', {checked: true}) %> </td><td> Choice D: </td> <td> <%- text_field_tag('dAns',{value:qobj.dAns, size:60}) %> </td></tr>
-        <% } else  { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','d') %> </td><td> Choice D: </td> <td> <%- text_field_tag('dAns',{value:qobj.dAns, size:60}) %>  </td></tr>
-        <br/>
-        <% } %>
 
-    <% if (qobj.eAns && qobj.answer == 'e') { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','e', {checked: true}) %> </td><td> Choice E: </td> <td> <%- text_field_tag('eAns',{value:qobj.eAns, size:60}) %> </td></tr>
-        <% } else  { %>
-        <tr><td> <%- radio_tag('multiChoiceCorrectAnswer','e') %> </td><td> Choice E: </td> <td> <%- text_field_tag('eAns',{value:qobj.eAns, size:60}) %>  </td></tr>
-        <br/>
-        <% } %>
+    <br/>
+
+    Image file: <%- file_field_tag("image", {"value": 5}) %>
+    <br/>
+    <% if (qobj.image) { %>
+    <img src="<%= qid %>/img">
+    <br>
+    <%- checkbox_tag('removeImage', {"value": "remove"}) %> Remove the image from
+    this question
+    <br>
+    <br>
+    <% } %>
+    Description:
+    <br/>
+    <%- text_area_tag('descr', qobj.descr) %>
+    <br/>
 
 
-        </table>
-        <br>
-        <% if (!qobj.answer) { %>
-        <%- radio_tag('multiChoiceCorrectAnswer','noneCorrect', {'checked': true}) %> There is no correct answer
+    Warn Student to answer time:
+    <!--<%- text_field_tag('warnTime', qobj.warnTime) %>-->
+    <%- select_tag("warnTime", [{"value": 30, "text": "30 secs"}, {"value": 60, "text": "1 min"},
+        {"value": "120", "text": "2 min"}, {"value": "180", "text": "3 min"}, {"value": "300", "text": "5 min"},
+        {"value": "unlimited", "text": "No time limit"}], {"value": qobj.warnTime}) %>
+    <br/>
+    <br/>
+
+    <% if (qobj.isMultiChoice()) { %>
+    <div id="multiChoices">
         <% } else { %>
-        <%- radio_tag('multiChoiceCorrectAnswer','noneCorrect') %> There is no correct answer
-        <% } %>
-<br/>
-    </div>
+        <div id="multiChoices" style="display:none">
+            <% } %>
+            Multiple choices (select the one that is the correct answer):
+            <table>
+                <% if (qobj.answer == 'a') { %>
+                <tr>
+                    <td> <%- radio_tag('multiChoiceCorrectAnswer', 'a', {checked: true}) %> </td>
+                    <td>Choice A:</td>
+                    <td> <%- text_field_tag('aAns', {value: qobj.aAns, size: 60}) %> </td>
+                </tr>
+                <% } else { %>
+                <tr>
+                    <td> <%- radio_tag('multiChoiceCorrectAnswer', 'a') %> </td>
+                    <td>Choice A:</td>
+                    <td> <%- text_field_tag('aAns', {value: qobj.aAns, size: 60}) %>  </td>
+                </tr>
+                <br/>
+                <% } %>
+                <% if (qobj.bAns && qobj.answer == 'b') { %>
+                <tr>
+                    <td> <%- radio_tag('multiChoiceCorrectAnswer', 'b', {checked: true}) %> </td>
+                    <td>Choice B:</td>
+                    <td> <%- text_field_tag('bAns', {value: qobj.bAns, size: 60}) %> </td>
+                </tr>
+                <% } else  { %>
+                <tr>
+                    <td> <%- radio_tag('multiChoiceCorrectAnswer', 'b') %> </td>
+                    <td>Choice B:</td>
+                    <td> <%- text_field_tag('bAns', {value: qobj.bAns, size: 60}) %>  </td>
+                </tr>
+                <br/>
+                <% } %>
+                <% if (qobj.cAns && qobj.answer == 'c') { %>
+                <tr>
+                    <td> <%- radio_tag('multiChoiceCorrectAnswer', 'c', {checked: true}) %> </td>
+                    <td>Choice C:</td>
+                    <td> <%- text_field_tag('cAns', {value: qobj.cAns, size: 60}) %> </td>
+                </tr>
+                <% } else  { %>
+                <tr>
+                    <td> <%- radio_tag('multiChoiceCorrectAnswer', 'c') %> </td>
+                    <td>Choice C:</td>
+                    <td> <%- text_field_tag('cAns', {value: qobj.cAns, size: 60}) %>  </td>
+                </tr>
+                <br/>
+                <% } %>
+                <% if (qobj.dAns && qobj.answer == 'd') { %>
+                <tr>
+                    <td> <%- radio_tag('multiChoiceCorrectAnswer', 'd', {checked: true}) %> </td>
+                    <td>Choice D:</td>
+                    <td> <%- text_field_tag('dAns', {value: qobj.dAns, size: 60}) %> </td>
+                </tr>
+                <% } else  { %>
+                <tr>
+                    <td> <%- radio_tag('multiChoiceCorrectAnswer', 'd') %> </td>
+                    <td>Choice D:</td>
+                    <td> <%- text_field_tag('dAns', {value: qobj.dAns, size: 60}) %>  </td>
+                </tr>
+                <br/>
+                <% } %>
+
+                <% if (qobj.eAns && qobj.answer == 'e') { %>
+                <tr>
+                    <td> <%- radio_tag('multiChoiceCorrectAnswer', 'e', {checked: true}) %> </td>
+                    <td>Choice E:</td>
+                    <td> <%- text_field_tag('eAns', {value: qobj.eAns, size: 60}) %> </td>
+                </tr>
+                <% } else  { %>
+                <tr>
+                    <td> <%- radio_tag('multiChoiceCorrectAnswer', 'e') %> </td>
+                    <td>Choice E:</td>
+                    <td> <%- text_field_tag('eAns', {value: qobj.eAns, size: 60}) %>  </td>
+                </tr>
+                <br/>
+                <% } %>
+
+            </table>
+            <br>
+            <% if (!qobj.answer) { %>
+            <%- radio_tag('multiChoiceCorrectAnswer', 'noneCorrect', {'checked': true}) %>
+            There is no correct answer
+            <% } else { %>
+            <%- radio_tag('multiChoiceCorrectAnswer', 'noneCorrect') %>
+            There is no correct answer
+            <% } %>
+            <br/>
+        </div>
 
 
-<!-- insert here -->
-<br/>
+        <!-- insert here -->
+        <br/>
+        <a  class='btn btn-delete btn-primary btn-xs' href="preview?qid=<%= qobj.id %>">Preview Question</a>
 
-<a href="preview?qid=<%=qobj.id%>">Preview Question</a>
-<br/>
+        <br/>
         <br>
-<input type="submit" value="Save" name="action">
-<input type="button" value="Cancel" onclick="fetchQuestion(<%=qobj.id %>)" name="reset">
+        <a id="saveQButton" onclick="saveQ()" class='btn btn-delete btn-primary btn-xs'>Save</a>
+        <a id="cancelQButton" onclick="fetchQuestion(<%= qobj.id %>)"
+           class='btn btn-delete btn-primary btn-xs'>Cancel</a>
 
 
-
-<%- form_end_tag() %>
+        <%- form_end_tag() %>
 
 </body>
 </html>

@@ -1,164 +1,363 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+    <meta name="viewport" content="width = device-width, initial-scale = 1.0">
 
-    <link href = "<%= pageContext %>/static/stylesheets/bootstrap.min.css" rel = "stylesheet"/>
+    <link href="<%= pageContext %>/static/stylesheets/bootstrap.min.css" rel="stylesheet"/>
+    <link href="http://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css" rel="stylesheet"/>
+    <style>
+
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        .main {
+            width: 100%;
+            height: 95%;
+            /*outline: solid 1px red;*/
+            margin: 0;
+            padding: 0;
+            /*background:darkseagreen;*/
+        }
+
+        .header {
+            width: 100%;
+            height: 5%;
+            /*outline: solid 1px red;*/
+            margin: 0;
+            padding: 0;
+            /*background:cornflowerblue;*/
+        }
+
+        .ui-sortable tr {
+            cursor: pointer;
+        }
+
+        .ui-sortable tr:hover {
+            background: rgba(244, 251, 17, 0.45);
+        }
+
+        .btn-danger {
+            color: #fff;
+            background-color: #4f88d9;
+            border-color: #4f88d9;
+        }
+
+
+    </style>
+    <!--&lt;!&ndash; Bootstrap CSS &ndash;&gt;-->
+    <!--<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet" />-->
+
+    <!--&lt;!&ndash; jQuery &ndash;&gt;-->
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>-->
+
+    <!--&lt;!&ndash; jQuery UI CSS &ndash;&gt;-->
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>-->
+
     <!--<link href='/stylesheets/style.css' rel='stylesheet' />-->
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src = "https://code.jquery.com/jquery.js"></script>
-    <script src = "<%= pageContext %>/static/js/bootstrap.min.js"></script>
+    <!--&lt;!&ndash; jQuery (necessary for Bootstrap's JavaScript plugins) &ndash;&gt;-->
+    <script
+            src="http://code.jquery.com/jquery-1.12.4.min.js"
+            integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+            crossorigin="anonymous"></script>
+    <script
+            src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+            crossorigin="anonymous"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <script src="<%= pageContext %>/static/js/bootstrap.min.js"></script>
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 
     <!--[if lt IE 9]>
-    <script src = "https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-    <script src = "https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
 
     <![endif]-->
 
 
     <title>Edit Test <%= tid %></title>
     <script type="application/javascript">
-        var newQuestionCounter =0;
+        var tid = '<%= tid %>';
 
-        function validateTest () {
+        var newQuestionCounter = 0;
+        var dAndDEnabled = true;
+
+        function validateTest() {
             return true;
+        }
+
+        function serverGetTestAllQuestions(cb) {
+            // make AJAX call to get a list of all questions as objects like {id, description}
+            $.getJSON("<%= pageContext %>/tests/" + tid + "/allQuestions", function (data) {
+                var allQuestions = data.qids;
+                cb(allQuestions);
+            });
+
+        }
+
+        function serverGetAllQuestions(qids) {
+            // make AJAX call to get a list of all questions as objects like {id, description}
+            $.getJSON("<%= pageContext %>/questions/getAll", function (data) {
+                var allQuestions = data.questions;
+                var tbody = document.getElementById("allQuestionsTable").getElementsByTagName('tbody')[0]
+                for (var i = 0; i < allQuestions.length; i++)
+                    addQuestionRow1( allQuestions[i], qids, tbody);
+            });
+
+        }
+
+        function serverSaveQuestionOrder(ids) {
+            $.ajax("<%= pageContext %>/tests/" + tid + "/questionOrder/",
+                {
+                    method: "POST",
+                    data: {ids: ids},
+                    error: function (a, status, err) {
+                        alert("error trying to update question order! " + err);
+                    }
+                });
+        }
+
+        // ajax call to remove the question from the test
+        function serverTestRemoveQuestion(tid, qid) {
+            $.ajax("<%= pageContext %>/tests/" + tid + "/removeQuestion/" + qid,
+                {
+                    method: "POST",
+                    success: function (data, status, x) {
+                        removeRow(qid);
+                    },
+
+                    error: function (a, status, err) {
+                        alert("error! " + err);
+                    }
+                });
+        }
+
+
+        function serverAddQuestionsToTest(idlist) {
+            $.ajax("<%= pageContext %>/tests/" + tid + "/addQuestions",
+                {
+                    method: "POST",
+                    data: {ids: idlist},
+                    error: function (a, status, err) {
+                        alert("error trying to add questions! " + err);
+                    }
+                });
         }
 
         // cur URL is like http:.../tests/102 and this loads http:.../tests/102
         // but cancel could also be clicked on a new test which doesnt have ID yet.
-        function fetchTest (tid) {
+        function fetchTest(tid) {
             if (tid)
-                document.location.href =  tid;
+                document.location.href = tid;
             else
                 document.location.href = 'new';   // just load a new test form
         }
 
         // cur URL is like http:.../tests/102 .  Will goto URL http .../questions/preview?tid=tid
-        function previewTest (tid) {
-            document.location.href = "<%= pageContext %>/tests/preview?tid=" + tid;
+        function previewTest() {
+            document.location.href = "<%= pageContext %>/tests/preview?tid=<%=tid%>" ;
         }
 
-        function addQuestionRow () {
 
+        function removeQuestion(tid, qid) {
+            var r = confirm("Are you sure you want to remove this question from the test?");
+            if (r) {
+                serverTestRemoveQuestion(tid, qid);
+            }
+        }
+
+        // GIven the qid, find the row its in and remove it
+        function removeRow(qid) {
+            var row = $('#questionTable tr').filter(function () {
+                return $.trim($('td', this).eq(0).text()) == qid;
+            });
+            row.remove();
+        }
+
+
+        // Add a question  to the table.  Given the list of qids in the table already so we can check that
+        // we don't insert it again.
+        // questionObj is {id, description}
+        function addQuestionRow1( questionObj, qids, tbody) {
+
+            // if its already in the test, don't put it in the allQuestions table.
+            if (qids.indexOf(questionObj.id) != -1)
+                return;
+            //var tbody = document.getElementById(tableId).getElementsByTagName('tbody')[0];
+            var newrow = tbody.insertRow(tbody.rows.length);
+            newrow.id = questionObj.id;
+            var c1 = newrow.insertCell(0);   // radio button
+            var c2 = newrow.insertCell(1);   // id
+            var c3 = newrow.insertCell(2);   //  description
+            c1.innerHTML = "<input type='checkbox'>";
+            c2.innerHTML = questionObj.id;
+            c3.innerHTML = "<a title='" + questionObj.hoverText + "'>" + questionObj.descr + "</a>";
+        }
+
+
+        function popupQuestions() {
+            window.open("<%= pageContext %>/questions", "", "width=500,height=600,toolbar=yes,scrollbars=yes,resizable=yes");
+        }
+
+        //After drag completes with a drop, this is called to send the list of qids to the server
+        function renumber_table(tableID) {
+            var ids = [];
+            var MyRows = $(tableID).find('tbody').find('tr');
+            for (var i = 0; i < MyRows.length; i++) {
+                var qid = $(MyRows[i]).find('td:eq(0)').html();
+                ids.push(qid);
+            }
+            serverSaveQuestionOrder(ids);
+
+
+        }
+
+        // create a new question in this test
+        function createQuestion() {
+            window.location.href = '<%= pageContext %>/questions/new?testId='+tid;
+        }
+
+        // first get all the current tests qids
+        function addQuestion_a() {
+            serverGetTestAllQuestions(addQuestion_b);
+        }
+
+        //  second get ALL the questions in the db
+        function addQuestion_b(qids) {
+            serverGetAllQuestions(qids);
+            // pop up the dialog while all the questions are being fetched
+            $("#selectQuestionsDialog").dialog('open');
+        }
+
+        // When user clicks addQuestion button this handles it.  First we get the qids of the current test from the server.
+        // THen we get the list of all questions in the database and show all of them except the ones in the current test in a dialog.
+        function addQuestion() {
+            addQuestion_a();
+        }
+
+
+        // Go through the dialog's table that list all questions in the db and get the ids of all checked rows.  Then add each of these questions to the
+        // table that represents the questions in the test.
+        function addQuestionsToTest() {
+            var selectedIds = [];
+            var qobjs = [];
+            $('#allQuestionsTable').find('tr').each(function () {
+                var row = $(this);
+
+                if (row.find('input[type="checkbox"]').is(':checked')) {
+                    var id = this.cells[1].innerHTML;
+                    var descr = this.cells[2].innerHTML;
+                    qobjs.push({id: id, descr: descr});
+                    selectedIds.push(id);
+                }
+            });
+            serverAddQuestionsToTest(selectedIds);
+            for (var i = 0; i < qobjs.length; i++) {
+                addQuestionToTable(qobjs[i]);
+
+            }
+
+        }
+
+
+
+        // Once a dialog has shown with table rows we clear the tbody of the table when the dialog closes
+        // so the next time the dialog is shown the table can be repopulated without the old rows.
+        function clearTableRows (tableId) {
+            var old_tbody = document.getElementById(tableId).getElementsByTagName('tbody')[0]
+            var new_tbody = document.createElement('tbody');
+            old_tbody.parentNode.replaceChild(new_tbody, old_tbody)
+        }
+
+
+        function saveTest () {
+            document.getElementById("testForm").submit();
+        }
+
+        // Given a q like {id: 10, descr: 'hidklf'},  add a row to the question table.
+        function addQuestionToTable(q) {
             var tab = document.getElementById("questionTable");
-            var nRows = tab.rows.length;
-            var r = tab.insertRow(-1);
+            var tbody = tab.getElementsByTagName('tbody')[0]
+            var r = tbody.insertRow(tbody.rows.length);
 
             var c = r.insertCell(0);
-            c.innerHTML = "";
-            var d = r.insertCell(1) ;
-//            d.innerHTML = "<input type='button' onclick='moveUp(" +nRows+ ")' value='^'>";
-            d = r.insertCell(2) ;
-//            tab.rows[nRows-1].cells[2].innerHTML = "<input type='button' onclick='moveDown(" +nRows+ ")' value='v'>";
-//            d.innerHTML = "<input type='button' onclick='moveDown(" +nRows+ ")' value='v'>";
-            var e = r.insertCell(3)  ;
-            newQuestionCounter++;
-            e.innerHTML = "<input id='newQuestion-" +newQuestionCounter + "' onblur='getQuestion(" +newQuestionCounter+ ")' type='textfield' name='questionIds' size='3'>" ;
-            var f = r.insertCell(4) ;
-
+            c.innerHTML = q.id;
+            var d = r.insertCell(1);
+            // construct a link to the test question
+            var qurl = '<%= pageContext %>' + '/questions/' + q.id;
+            var x = q.descr;
+            // q.descr is a string like <a title=.. - insert the href=qurl into it
+            var s = x.substring(0, 3) + 'href="' + qurl + '" ' + x.substring(3);
+            d.innerHTML = s;
+            var e = r.insertCell(2);
+            e.innerHTML = "<a onclick='removeQuestion(<%= tid %>, " + q.id + ")' class='btn btn-delete btn-primary btn-xs'>Delete</a>";
+            var f = r.insertCell(3);
+            var g = r.insertCell(4);
         }
 
-
-
-        // This was doing some AJAX that leaves the form in a state that is confusing to user
-        // because it doesn't represent the saved DB state of the test.
-        function getQuestion (newQuestNum) {
-            var id = 'newQuestion-' + newQuestNum;
-            var textfield = document.getElementById(id);
-            var questId = textfield.value;
-            if (!questionAlreadyInTest(questId)) {
-                var tab = document.getElementById("questionTable");
-                var rowAdded = tab.rows.length;
-                var questDescr = tab.rows[rowAdded - 1].cells[4];
-                // get the questions descr and hover text from the id typed in
-                $.getJSON("<%= pageContext %>/questions/descr/" + questId, function (data) {
-                    var descr = data.descr;
-                    var hoverText = data.hoverText;
-                    var linkToQ;
-                    if (descr.startsWith("Error"))
-                        linkToQ = descr;
-                    else {
-                        var f = document.getElementById("testForm");
-                        f.submit();
-                    }
-                    questDescr.innerHTML = linkToQ;
-                });
-            }
-            else {
-                var tab = document.getElementById("questionTable");
-                var rowAdded = tab.rows.length;
-                var questDescr = tab.rows[rowAdded - 1].cells[4];
-                questDescr.innerHTML = "That question is already in the test!";
-            }
-
-        }
-
-
-
-        function getRowVals (cells) {
-            // checkBox
-//            table.rows[rowIndex].cells[colIndex].getElementsByTagName('input')[0];
-            var td0 = cells[0];
-            var checkBox = td0.getElementsByTagName('input')[0];
-            var isChecked = checkBox.checked;
-            checkBox = cells[0].innerHTML;
-            var id = cells[3].innerHTML;
-            var link = cells[4].innerHTML;
-            var hiddenId = cells[5].innerHTML;
-            return [checkBox, id, link, hiddenId] ;
-
-        }
-
-        function moveUp (n) {
-            var tab = document.getElementById("questionTable");
-            var rowOn = tab.rows[n];
-            var rowAbove = tab.rows[n-1];
-
-            var cellsOn = rowOn.getElementsByTagName("td");
-            var temp = getRowVals(cellsOn);
-            var cellsAbove = rowAbove.getElementsByTagName("td");
-            cellsOn[0].innerHTML = cellsAbove[0].innerHTML;
-            cellsOn[3].innerHTML = cellsAbove[3].innerHTML;
-            cellsOn[4].innerHTML = cellsAbove[4].innerHTML;
-            cellsOn[5].innerHTML = cellsAbove[5].innerHTML;
-            cellsAbove[0].innerHTML = temp[0];
-            cellsAbove[3].innerHTML = temp[1];
-            cellsAbove[4].innerHTML = temp[2];
-            cellsAbove[5].innerHTML = temp[3];
-
-//                alert("cells " + cells.length + " id " + cells[3].innerHTML);
-
-        }
-
-        function moveDown (n) {
-            var tab = document.getElementById("questionTable");
-            var rowOn = tab.rows[n+1];
-            var rowAbove = tab.rows[n];
-
-            var cellsOn = rowOn.getElementsByTagName("td");
-            var temp = getRowVals(cellsOn);
-            var cellsAbove = rowAbove.getElementsByTagName("td");
-            cellsOn[0].innerHTML = cellsAbove[0].innerHTML;
-            cellsOn[3].innerHTML = cellsAbove[3].innerHTML;
-            cellsOn[4].innerHTML = cellsAbove[4].innerHTML;
-            cellsOn[5].innerHTML = cellsAbove[5].innerHTML;
-            cellsAbove[0].innerHTML = temp[0];
-            cellsAbove[3].innerHTML = temp[1];
-            cellsAbove[4].innerHTML = temp[2];
-            cellsAbove[5].innerHTML = temp[3];
-
-        }
-
-        function popupQuestions () {
-            window.open("<%= pageContext %>/questions","", "width=500,height=600,toolbar=yes,scrollbars=yes,resizable=yes");
-        }
 
         // Need to prevent the ENTER key from submitting the form
-        $(document).ready(function() {
-            $('#testForm').on('keyup keypress', function(e) {
+        $(document).ready(function () {
+            //Helper function to keep table row from visually collapsing during drag operations
+            var fixHelperModified = function (e, tr) {
+                var $originals = tr.children();
+                var $helper = tr.clone();
+                $helper.children().each(function (index) {
+                    $(this).width($originals.eq(index).width())
+                });
+                return $helper;
+            };
+
+        var wWidth = $(window).width();
+        var dWidth = wWidth * 0.8;
+        var wHeight = $(window).height();
+        var dHeight = wHeight * 0.8;
+            $('#main').css("height", document.documentElement.clientHeight);
+
+            $("#selectQuestionsDialog").dialog({
+                autoOpen: false,
+                modal: true,
+                width: dWidth,
+                height: dHeight,
+                buttons: [
+                    {
+                        text: "Save",
+                        id: "save",
+                        click: function () {
+                            addQuestionsToTest();
+                            clearTableRows("allQuestionsTable");
+                            $(this).dialog("close");
+                        }
+                    },
+                    {
+                        text: "Cancel",
+                        id: "cancel",
+                        click: function () {
+                            clearTableRows("allQuestionsTable");
+                            $(this).dialog("close");
+                        }
+                    }
+                ]
+            });
+            $("#addQuestionButton").click(addQuestion);
+            $("#createQuestionButton").click(createQuestion);
+            $("#saveTestButton").click(saveTest);
+            $("#previewTestButton").click(previewTest);
+
+            $('#questionTable tbody').sortable({
+                helper: fixHelperModified,
+                stop: function (event, ui) {
+                    renumber_table('#questionTable')
+                }
+            }).disableSelection();
+
+// prevent submission of the form when hitting enter key
+            $('#testForm').on('keyup keypress', function (e) {
                 var keyCode = e.keyCode || e.which;
                 if (keyCode === 13) {
                     e.preventDefault();
@@ -167,74 +366,114 @@
             });
         });
 
-        function questionAlreadyInTest (qid) {
-            var ids = [<%= test.questionIds %>];
-            qid = parseInt(qid);
-            for (var i=0; i<ids.length;i++) {
-                if (ids[i] == qid)
-                    return true;
-            }
-            return false;
-        }
+
     </script>
 </head>
 
 <body>
-<a href="<%= pageContext %>/tests">View All Tests</a> &nbsp; &nbsp; <a href="../questions">View All Questions</a>
+<div id="header" class="header">
+    <a href="<%= pageContext %>/tests">View All Tests</a> &nbsp; &nbsp; <a href="../questions">View All Questions</a>
     <br><br>
+</div>
+<div id="main" class="main">
+    <!-- See for doc on view helpers https://github.com/tanema/express-helpers/wiki -->
+    <!--<form id="testForm" method="post" action="<%= tid %>" onsubmit="return validateTest()">-->
+    <form id="testForm" method="post" onsubmit="return validateTest()">
 
-<!-- See for doc on view helpers https://github.com/tanema/express-helpers/wiki -->
-    <form id="testForm" method="post" action="<%= tid %>" onsubmit="return validateTest()">
+        <div id="inputs" style="height: 15vh;">
+            Test ID: <%= tid %>
+            <br>
+            Name: <%- text_field_tag("name", {"value": test.name}) %>
+            <br>
+            Active:
+            <% if (test.isActive) { %>
+            <input type="checkbox" name="isActive" checked>
+            <% } else { %>
+            <input type="checkbox" name="isActive">
+            <% } %>
+            <!--Questions size: <%= test.questions.length %>-->
+            <br>
+            <% if (tid) { %>
+                <a id="addQuestionButton" class='btn btn-delete btn-primary btn-xs'>Add Question</a>
+                <a id="createQuestionButton" class='btn btn-delete btn-primary btn-xs'>Create New Question</a>
+            <% } %>
+        </div>
+        <% if (tid) { %>
+        <div id="content" style="overflow: auto; height: 55vh; width: 100%;">
 
-    Test ID: <%= tid %>
-    <br>
-    Name: <%- text_field_tag("name",{"value": test.name}) %>
-    <br>
-    Active:
-        <% if (test.isActive) { %>
-        <input type="checkbox" name="isActive" checked>
-        <% } else { %>
-        <input type="checkbox" name="isActive">
+            <!--<a onclick="addQuestionRow()" class='btn btn-delete btn-primary btn-xs'>Add Question</a>-->
+            <!--<table id="questionTable" class="table table-bordered pagin-table">-->
+            <table id="questionTable" class="table table-striped" style="display:block;">
+                <thead>
+                <tr>
+                    <!--<th>Priority</th>  -->
+                    <th>QID</th>
+                    <th>Description (drag and drop rows to reorder)</th>
+                    <th></th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <% for (var i = 1; i <= test.questions.length; i++) { %>
+                <% var q = test.questions[i - 1]; %>
+                <!--<tr id="row-<%= i %>" >-->
+                <tr>
+                    <!--<td class="order"><%= i %></td>-->
+                    <!--<td> <%- checkbox_tag('removeQuestion', {"value": q.id}) %></td>-->
+                    <td> <%= q.id %> </td>
+
+
+                    <td><a title="<%= q.hoverText %>" href="<%= pageContext %>/questions/<%= q.id %>"><%= q.descr %></a>
+                    </td>
+                    <td><a onclick="removeQuestion(<%= tid %>, <%= q.id %>)" class='btn btn-delete btn-primary btn-xs'>Delete</a>
+                    </td>
+                    <!--<td><input type="hidden" name="questionIds" value="<%= q.id %>"></td>-->
+                </tr>
+
+                <% } %>
+
+                </tbody>
+
+            </table>
+        </div>
         <% } %>
-    <!--Questions size: <%= test.questions.length %>-->
-        <br><br>
-
-        <table id="questionTable">
-            <tr> <td>Del</td> <td>Up</td> <td>Dwn</td> <td>Quest ID</td> <td><input type="button" onclick="addQuestionRow()" value="Add Question"></td><td><input type="button" onclick="popupQuestions()" value="Popup All questions"></td></tr>
-        <% for (var i=1; i <= test.questions.length; i++) { %>
-        <% var q = test.questions[i-1]; %>
-            <tr id="row-<%= i %>" >
-                <td> <%- checkbox_tag('removeQuestion',{"value": q.id}) %></td>
-                <td>
-                    <% if (i != 1) { %>
-                        <input type="button" onclick="moveUp( <%= i %> )" value="^">
-                    <% } %>
-                </td>
-                <td>
-                    <% if (i != test.questions.length) { %>
-                        <input type="button" onclick="moveDown( <%= i %> )" value="v"></td>
-                    <% } %>
-                <td> <%= q.id %> </td>
-                <td> <a title="<%= q.hoverText %>" href="<%= pageContext %>/questions/<%= q.id%>"><%= q.descr %></a></td>
-                <td><input type="hidden" name="questionIds" value="<%= q.id %>"></td>
-            </tr>
-        <% } %>
-        </table>
         <br>
+        <div id="buttons" style="height: 15vh;">
 
-        <% if (message) { %>
-           <%= message %>
-        <% } %>
-        <br>
-        <a href="preview?tid=<%= test.id %>">Preview Test</a>
+            <% if (!tid) { %>
+                <a id="saveTestButton" onclick="saveTest(<%= tid %>)" class='btn btn-delete btn-primary btn-xs'>Save Test</a>
+            <% } else {%>
+                <a id="previewTestButton" onclick="previewTest(<%= tid %>)" class='btn btn-delete btn-primary btn-xs'>Preview Test</a>
+            <% } %>
 
-        <br><br>
-        <%- submit_tag("Save") %>
-        <input type="button" value="Cancel" onclick="fetchTest(<%=test.id %>)" name="reset">
+            <% if (message) { %>
+            <%= message %>
+            <% } %>
+            <br>
 
+
+            <br><br>
+            <!--<%- submit_tag("Save") %>-->
+            <!--<input type="button" value="Cancel" onclick="fetchTest(<%= test.id %>)" name="reset">-->
+        </div>
     </form>
 
+</div>
 
+<div id="selectQuestionsDialog" style="overflow:auto" title="Select Questions to Add to Test">
+    <table id="allQuestionsTable" class="table table-striped" style="display:block;">
+        <thead>
+        <tr>
+            <th>select</th>
+            <th>ID</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
 
 </body>
 </html>

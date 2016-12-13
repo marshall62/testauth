@@ -22,6 +22,18 @@
             form.method = "GET";
             form.submit();
         }
+
+        function doSave () {
+            var form = document.getElementById("myform");
+            form.submit();
+        }
+
+        //
+        $(document).ready(function () {
+            $("#addQuestionButton").click(addQuestion);
+            $("#saveButton").click(doSave);
+        });
+
     </script>
 </head>
 <body>
@@ -30,9 +42,15 @@
 Here are all the Pre/Post questions
 
 <form id="myform" action="questions", method="post">
+    <a id="addQuestionButton" class='btn btn-delete btn-primary btn-xs'>Create New Question</a>
 
-    <table>
-        <tr><td>Del</td><td></td><td><input type="button" onclick="addQuestion()" name="NewQuestion" value="Create New Question"> </td></tr>
+    <br>
+
+
+    <div id="content" style="overflow: auto; height: 70vh; width: 100%;">
+    <table class="table table-striped">
+        <thead><th>Del</th><th>QID</th><th>Description</th></thead>
+        <tbody>
         <% questions.forEach(function (question) { %>
         <tr>
             <td> <%- checkbox_tag('removeQuestion',{"value": question.id}) %></td>
@@ -40,8 +58,12 @@ Here are all the Pre/Post questions
             <td> <a title="<%= question.hoverText %>" href="questions/<%= question.id%>"> <%= question.descr %> </a>  </td>
         </tr>
         <% }); %>
+        </tbody>
     </table>
-    <input type="submit" name="saveBtn" value="Save">
+        </div>
+    <br><br>
+        <a id="saveButton" class='btn btn-delete btn-primary btn-xs'>Save</a>
+
 </form>
 
 </body>

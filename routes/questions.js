@@ -44,21 +44,21 @@ router.get('/', function(req, res, next) {
     var questionArray = [];
     var myresult = {questions : undefined};
     async.series([
-        function (callback) {
-            db.pool.getConnection(function (err, conn) {
-                dbConn = conn;
-                callback(err,null);
-            });
-        },
-        function (callback) {
-            getAllQuestions(dbConn, questionArray ,callback,next);
-        }
+            function (callback) {
+                db.pool.getConnection(function (err, conn) {
+                    dbConn = conn;
+                    callback(err,null);
+                });
+            },
+            function (callback) {
+                getAllQuestions(dbConn, questionArray ,callback,next);
+            }
         ],
         function (err, result ) {
             if (err) {
                 dbConn.release();
-                console.log(error.message + "\n" + error.stack);
-                res.send('Encountered error in get(/questions),' + error.message + '<br>' + error.stack);
+                console.log(err.message + "\n" + err.stack);
+                res.send('Encountered error in get(/questions),' + err.message + '<br>' + err.stack);
             }
             else {
                 dbConn.release();
@@ -67,7 +67,41 @@ router.get('/', function(req, res, next) {
         } );
 });
 
+// Handle a request to return all questions as a list of Question JSON objects as {questions: list}
+router.get('/getAll', function(req, res, next) {
+    // if no userid in the session, user is not logged in or session expired.
+    if (!req.session.userid) {
+        res.redirect('login');
+        return;
+    }
+    var dbConn;
+    var questionArray = [];
+    async.series([
+            function (callback) {
+                db.pool.getConnection(function (err, conn) {
+                    dbConn = conn;
+                    callback(err,null);
+                });
+            },
+            function (callback) {
+                getAllQuestions(dbConn, questionArray ,callback,next);
+            }
+        ],
+        function (err, result ) {
+            if (err) {
+                dbConn.release();
+                console.log(error.message + "\n" + error.stack);
+                res.send('Encountered error in get(/questions/getAll),' + err.message + '<br>' + err.stack);
+            }
+            else {
+                dbConn.release();
+                res.json({questions: questionArray});
+            }
+        } );
+});
+
 //  process a GET /questions/new request which returns an empty form for entering a new question.
+// allows an optional parameter ?testId which will request that the newly created question be added to the test.
 router.get('/new', function(req, res, next) {
     // if no userid in the session, user is not logged in or session expired.
     if (!req.session.userid) {
@@ -75,10 +109,11 @@ router.get('/new', function(req, res, next) {
         return;
     }
     var dbConn;
+    var tid = req.query.testId;
     var myresult = {question: undefined};
     myresult.question = new Question();
     myresult.question.setType(1); // a better default for editing a new question
-    res.render('question', {pageContext: util.pageContext(req), qid: undefined, qobj: myresult.question});
+    res.render('question', {pageContext: util.pageContext(req), qid: undefined, qobj: myresult.question, tid: tid});
 });
 
 // process GET on URI /questions/<id> to return a question editing page  or /questions/new for a new question editing page.
@@ -111,7 +146,7 @@ router.get('/:qid(\\d+)', function(req, res, next) {
             }
             else {
                 dbConn.release();
-                res.render('question', {pageContext: util.pageContext(req), qid: qid, qobj: myresult.question});
+                res.render('question', {pageContext: util.pageContext(req), qid: qid, qobj: myresult.question, tid: undefined});
             }
         })  ;
 
@@ -214,6 +249,7 @@ router.post('/', function(req, res, next) {
 // Included files will be an image and potentially images for each of a,b,c,d,e answer choices.
 // if qid == 'new' this is saving a new question (without an id yet), so make qid undefined
 // so this can process it correctly.
+// Note if the parameter testId=XXX is included, then it's a NEW question and we add it to the test.
 router.post('/:qid', upload.fields([{name: 'image', maxcount: 1}, {name: 'aChoiceImg', maxcount: 1}]), function (req,res,next) {
     // if no userid in the session, user is not logged in or session expired.
     if (!req.session.userid) {
@@ -221,6 +257,7 @@ router.post('/:qid', upload.fields([{name: 'image', maxcount: 1}, {name: 'aChoic
         return;
     }
     var qid = req.params.qid;
+    var testId = req.query.testId;
     var removeImage = req.body.removeImage;
     if (qid == 'new')
         qid = undefined;
@@ -242,6 +279,12 @@ router.post('/:qid', upload.fields([{name: 'image', maxcount: 1}, {name: 'aChoic
             saveQuestion(req, dbConn, callback, myresult, removeImage, qid);
         },
         function (callback) {
+            if (testId) {
+                addQuestionToTest(dbConn,myresult.question.id,testId,callback)
+            }
+            else callback(null,null);
+        } ,
+        function (callback) {
             getQuestion(dbConn, myresult.question.id, myresult,callback);
         }
         ],
@@ -254,7 +297,6 @@ router.post('/:qid', upload.fields([{name: 'image', maxcount: 1}, {name: 'aChoic
             else {
                 dbConn.release();
                 res.redirect(myresult.question.id ); // do a GET on /questions/<id>
-                // res.render('question', {qid: myresult.question.id, qobj: myresult.question});
             }
         });
 
@@ -285,7 +327,7 @@ router.get('/descr/:qid', function(req,res,next) {
             }
             else {
                 dbConn.release();
-                res.json(myresult.question);;
+                res.json(myresult.question);
             }
         });
 
@@ -465,6 +507,25 @@ function getAllQuestions (conn, questionArray, callback,next) {
 
 }
 
+// Add a single question to the test's list of questions.  Add it at the end.
+function addQuestionToTest (conn, qid, testId,  cb) {
+    conn.query("select count(*) as numQuestions from prepostproblemtestmap where testid=?",
+        [testId], function (error, rows) {
+            if (error) {
+                callback(error,null);
+            }
+            else {
+                // should get back at least 0 as the number of questions in the test.
+                if (rows.length > 0) {
+                    var n = rows[0].numQuestions;
+                    conn.query("insert into prepostproblemtestmap (probId, testId, position) values (?,?,?)",
+                        [qid, testId, n],cb);
+                }
+                else callback(new Error("Could not get the number of questions in the test " + testId + " in prepostproblemtestmap table"))
+            }
+        })
+
+}
 
 module.exports = router;
 
