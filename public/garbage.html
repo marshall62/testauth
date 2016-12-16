@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
+
+    <script
+            src="http://code.jquery.com/jquery-1.12.4.min.js"
+            integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+            crossorigin="anonymous"></script>
+    <script
+            src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+            crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/js/lib/dummy.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/result-light.css">
+
+    <style type="text/css">
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            margin: 0;
+            background: rgb(0, 160, 182);
+        }
+
+        .section {
+            width: 100%;
+            height: 20%;
+            outline: solid 1px red;
+            margin: 0;
+            padding: 0;
+            background: red;
+        }
+
+        .section2 {
+            width: 100%;
+            height: 70%;
+            outline: solid 1px red;
+            margin: 0;
+            padding: 0;
+            background: green;
+        }
+
+        .section3 {
+            width: 100%;
+            height: 10%;
+            outline: solid 1px red;
+            margin: 0;
+            padding: 0;
+            background: yellow;
+        }
+    </style>
+
+    <title></title>
+
+
+
+
+    <script type='text/javascript'>//<![CDATA[
+    function renumber_table(tableID) {
+//            $(tableID + " tr").each(function() {
+//                count = $(this).parent().children().index($(this)) + 1;
+//                $(this).find('.order').html(count);
+//            });
+    }
+
+    $(document).ready(function() {
+        //Helper function to keep table row from collapsing when being sorted
+        var fixHelperModified = function(e, tr) {
+            var $originals = tr.children();
+            var $helper = tr.clone();
+            $helper.children().each(function(index)
+            {
+                $(this).width($originals.eq(index).width())
+            });
+            return $helper;
+        };
+        $('#section-1').css("height", document.documentElement.clientHeight);
+
+        $('#diagnosis_list tbody').sortable({
+            helper: fixHelperModified,
+            stop: function(event,ui) {renumber_table('#diagnosis_list')}
+        }).disableSelection();
+    });
+
+
+
+    window.onload=function(){
+        var viewportHeight = "height:" + document.documentElement.clientHeight;
+
+        document.getElementById('section-1').setAttribute('style', viewportHeight);
+    }//]]>
+
+    </script>
+
+
+</head>
+
+<body>
+<!DOCTYPE html>
+
+<body>
+
+<div class="section" id="section-1">add something?</div>
+
+<div class="section2" id="section-2">
+    <form>
+
+        <div id="inputs" style="height: 15vh;">
+            Test ID: 26
+            <br>
+            Name: <input value='8th Grade Pretest' id='name' type='text' name='name' />
+            <br>
+            Active:
+
+            <input type="checkbox" name="isActive" checked>
+
+            <!--Questions size: 23-->
+            <br><br>
+        </div>
+    <div style="overflow: auto; height: 55vh; width: 100%;">
+    <table class="table" id="diagnosis_list">
+        <thead>
+        <tr><th>Priority</th><th>Name</th><th>Favorite fruit</th><th>Vegetarian?</th><th>&nbsp;</th></tr>
+        </thead>
+        <tbody>
+        <tr><td class='priority'>1</td><td>George Washington</td><td>Apple</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>2</td><td>John Adams</td><td>Pear</td><td>Y</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>3</td><td>Thomas Jefferson</td><td>Banana</td><td>Y</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>4</td><td>Ben Franklin</td><td>Kumquat</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        <tr><td class='priority'>5</td><td>Alexander Hamilton</td><td>Red grapes</td><td>N</td><td><a class='btn btn-delete btn-danger'>Delete</a></td></tr>
+        </tbody>
+    </table>
+</div>
+        </form>
+    </div>
+
+<div class="section3" id="section-3">Oh hey look? It works!</div>
+
+</body>
+</html>
+
+</body>
+
+</html>

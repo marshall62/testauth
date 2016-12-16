@@ -12,7 +12,7 @@ var limits = { fileSize: 100 * 1024 * 1024, files:1 };
 // const upload = multer({ dest: './uploads', limits: limits });
 const upload = multer({ dest: '/tmp', limits: limits });
 const async = require('async');
-var Question = require('../model/Question');
+var Question = require('../model/Question2');
 /*
 var storage =   multer.diskStorage({
 

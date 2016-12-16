@@ -8,7 +8,8 @@ const db = require('../db');
 const util = require('../util/util');
 const async = require('async');
 var Question = require('../model/Question');
-const Test = require('../model/Test');
+// const Test = require('../model/Test');
+const Test = require('../model/Test2');
 
 /* GET test listing. Will list all pre/post tests.  */
 router.get('/', function(req, res, next) {
@@ -170,7 +171,7 @@ router.get('/:tid/allQuestions', function(req, res, next) {
             }
             else {
                 dbConn.release();
-                res.json({qids: myresult.test.getAllQuestionIds()});
+                res.json({qids: myresult.test.allQuestionIds});
             }
         })  ;
 
@@ -273,7 +274,7 @@ router.post('/:tid/removeQuestion/:qid', function (req, res, next) {
 
         }, // insert all questions into the map
         function (callback) {
-                insertQuestionsInTest(dbConn, myresult.test, myresult.test.getAllQuestionIds(), false, callback, next);
+                insertQuestionsInTest(dbConn, myresult.test, myresult.test.allQuestionIds, false, callback, next);
             }],
         function (err, result) {
             if (err) {
@@ -398,12 +399,12 @@ router.get('/preview', function(req, res, next) {
                 callback(null,null);
             }
             else if (tid) {
-                if (myresult.test.questions.length > 0) {
-                    myresult.question = myresult.test.questions[0];
-                    myresult.qid = myresult.test.questionIds[0];
+                if (myresult.test.allQuestions.length > 0) {
+                    myresult.question = myresult.test.allQuestions[0];
+                    myresult.qid = myresult.test.allQuestionIds[0];
                     callback(null,null);
                 }
-                else if (myresult.test.questions.length == 0)
+                else if (myresult.test.allQuestions.length == 0)
                     callback(null,null);
 
                 // The test has no questions, so we can't preview it,
@@ -423,7 +424,7 @@ router.get('/preview', function(req, res, next) {
 
                 if (isLastQ)
                     res.render('test', {pageContext: util.pageContext(req), test: myresult.test, tid: tid,  message: undefined});
-                else if (myresult.test.questions.length == 0)
+                else if (myresult.test.allQuestions.length == 0)
                     res.render('test', {pageContext: util.pageContext(req), test: myresult.test, tid: tid, message: 'There are no questions in this test'});
                 else
                     res.render('questionPreview', {pageContext: util.pageContext(req), qid: myresult.qid, qobj: myresult.question, tid: tid});
@@ -434,8 +435,8 @@ router.get('/preview', function(req, res, next) {
 
 //  find the qid question in the test and return the question after that or null
 function getNextQuestion (test, qid) {
-    var qs = test.questions;
-    var qids = test.questionIds;
+    var qs = test.allQuestions;
+    var qids = test.allQuestionIds;
     for (var i=0;i<qs.length-1;i++) {
         if (qids[i] == qid)
             return qs[i+1]; // the next question;
@@ -468,7 +469,8 @@ function createNewTest (conn, req, myresult, questionIds, cb, next) {
     test.initFromRequest(req);
     myresult.test = test;
     if (questionIds) {
-        test.setQuestionIds(questionIds);
+        // test.setQuestionIds(questionIds);
+        test.allQuestionIds = questionIds;
     }
     async.series([
                 function (callback) {
@@ -556,12 +558,15 @@ function updateTest(dbConn, myresult, questionId, cb, next) {
     try {
         var test = myresult.test;
         // add new ids into the test
-        test.addQuestion(questionId);
+        if (questionId)
+            test.addQuestion(questionId);
 
         async.series([
                 // insert all questions into the map
                 function (callback) {
-                    addQuestionToTest(dbConn, test, questionId, callback);
+                    if (questionId)
+                        addQuestionToTest(dbConn, test, questionId, callback);
+                    else callback(null,null);
                 },
                 // update other fields of the test
                 function (callback) {
@@ -579,7 +584,7 @@ function updateTest(dbConn, myresult, questionId, cb, next) {
 // a single question has been added to the test.  It will be LAST in the test's question list.
 // Now we add it to the map table.
 function addQuestionToTest (conn, test, qid, cb) {
-    var seqPos=test.getAllQuestions().length-1; // sequence positions stored in db are zero-based
+    var seqPos=test.allQuestions.length-1; // sequence positions stored in db are zero-based
     conn.query("insert into prepostproblemtestmap (probId, testId, position) values (?,?,?)",
         [qid, test.id, seqPos], cb);
 
@@ -590,7 +595,7 @@ function insertQuestionsInTest(conn, test, qids, addAtEnd, cb, next) {
     var pairs = [];
     var index = 0;
     if (addAtEnd)
-        index = test.getAllQuestions().length;
+        index = test.allQuestions.length;
     try {
         if (! qids)
             cb(null,null);
