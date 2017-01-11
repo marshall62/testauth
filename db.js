@@ -3,13 +3,14 @@
  */
 
 var mysql = require('mysql');
+const config = require('./util/config.js');
 
 var connPool = mysql.createPool({
     connectionLimit: 10,
-    host : 'localhost',
-    user : 'WayangServer',
-    password : 'jupiter',
-    database : 'wayangoutpostdb',
+    host : config.db.host,
+    user : config.db.user,
+    password : config.db.password,
+    database : config.db.database,
     'debug' : false
 });
 

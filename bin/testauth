@@ -7,6 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('testauth:server');
 var http = require('http');
+const config = require('../util/config');
 
 // when running on the production server this app has to have a context like /testauth (so the URLs are like
 // http://rose.cs.umass.edu/testauth/login  .   On dev machine no context is necessary.
@@ -23,7 +24,10 @@ if (process.argv.indexOf('-c') != -1 ) {
 
 }
 else {
-  global.context = "";
+  // if no -c arg is given, then use the pageContext set in the config.   This allows me to stop passing -c /testauth on the server when
+    // I start the app and instead just edit config.js so it has config.pageContext set with "/testauth".   In dev environment,
+    // I use config.pageContext = ""
+  global.context = config.pageContext;
   console.log("Using context: [" + global.context + "]");
 }
 

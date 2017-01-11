@@ -81,7 +81,11 @@ Add testauth to PM2's process list:
 
 In the above command line we need to pass args so that URLs are constructed correctly on rose.  Apache forwards
 to node when requests come in on the /testauth path.  So we pass the context
-to the testauth program so that it knows it rather than trying to take apart URLs.
+to the testauth program so that it knows it rather than trying to take apart URLs.  No longer necessary as described below!
+
+1/17:  I've now got a config.js file that can be edited on the server so that it has different settings than
+my development environment.   This file has the config options for connecting to the db and password authentication server, etc.
+It also has config.pageContext which can then be used instead of the program argument (-c /testauth) .
 
 Set up pm2 to restart if the system reboots
   sudo pm2 startup centos (for 6.8 centos which is what I have)
