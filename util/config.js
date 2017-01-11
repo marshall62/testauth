@@ -17,6 +17,6 @@ config.db.host="localhost";
 // correct setting for rose server
 // config.pageContext = "testauth";
 // correct setting for development environment
-config.pageContext = "/testddd";
+config.pageContext = "";
 
 module.exports = config;
