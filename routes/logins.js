@@ -27,24 +27,22 @@ router.post('/', function(req, res, next) {
     var dbConn;
     var myresult = {userid: undefined, authenticated: undefined};
     async.series([
+
             function (callback) {
-                authent(user,pw,myresult, callback);
+                db.pool.getConnection(function (err, conn) {
+                    dbConn = conn;
+                    callback(err,null);
+                });
             },
             function (callback) {
-                if (!myresult.authenticated)
-                    callback(null,null);
-                else
-                    db.pool.getConnection(function (err, conn) {
-                        dbConn = conn;
-                        callback(err,null);
-                    });
-            },
-            function (callback) {
-                if (!myresult.authenticated)
-                    callback(null,null);
-                else
-                    getUser(dbConn, user, pw, myresult,callback);
+                authent2(dbConn,user,pw,myresult, callback);
             }
+            // , function (callback) {
+            //     if (!myresult.authenticated)
+            //         callback(null,null);
+            //     else
+            //         getUser(dbConn, user, pw, myresult,callback);
+            // }
         ], function (error, result) {
         if (error) {
             if (dbConn)
@@ -81,6 +79,43 @@ router.get('/', function(req, res, next) {
 
 });
 
+// creates a simple hash of a password where each character is replaced by a new hashed one.
+function pwHash (pw) {
+    var hpw = "";
+    const x = 13;
+    for (var i=0; i<pw.length; i++) {
+        var num = (pw.charCodeAt(i) * i+1 * x) % ("z".charCodeAt(0) - "A".charCodeAt(0)) ;
+        var c = String.fromCharCode("A".charCodeAt(0)  + num);
+        hpw += c;
+    }
+    return hpw;
+}
+
+// A simpler login that gets around having to call the mathspring services through HTTP to see if the admin user password is right.
+// Instead I'm going to use a very simple hash.
+function authent2 (conn, user,pw,result,callback) {
+    var ph = pwHash(pw);
+    conn.query("select id from administrator where username=? and pw2=?", [user, ph],
+        function (error, rows)  {
+            if (error)
+                callback(error,null);
+            else {
+                if (rows.length > 0) {
+                    result.userid = rows[0].id;
+                    result.authenticated  = true;
+                    callback(null, null);
+                }
+                else {
+                    result.authenticated  = false;
+                    // user/pw not found so don't set the result.userid
+                    callback(null,null);
+                }
+
+            }
+        }
+    );
+}
+
 
 
 function getUser (conn, user, pw, result , callback) {
@@ -105,6 +140,10 @@ function getUser (conn, user, pw, result , callback) {
 }
 
 
+// This uses mathspring as a service to send an HTTP get with the user and pw to see if its correct.
+// But if mathspring is down or if there is trouble with Jersey, this fails.  So the best thing I can do for now is
+// store a second version of the password in the field pw2 and use the authent2 function above which makes no use
+// of mathspring.
 function authent (user, pw, myresult, callback) {
     // should be reading some kind of init file where this could go but don't know how to
     var authentHost = config.loginServer.host;
