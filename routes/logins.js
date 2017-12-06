@@ -79,6 +79,14 @@ router.get('/', function(req, res, next) {
 
 });
 
+// a simple utility that allows one to hash a password.  This is useful for creating new admin users
+// and getting the hash to put into the pw2 column
+router.get('/pwhash/:pw', function(req, res, next) {
+    var pw = req.params.pw;
+    var hash = pwHash(pw);
+    res.render('simple', {pw: pw, hash: hash });
+});
+
 // creates a simple hash of a password where each character is replaced by a new hashed one.
 function pwHash (pw) {
     var hpw = "";

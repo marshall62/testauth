@@ -5,6 +5,7 @@ var util = require("../util/util")
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
+  console.log("at main route");
   var url =  util.pageContext(req) + '/login';
   res.redirect(url);
 });
